@@ -18,14 +18,15 @@ try:
 
     def loaddatabase():
         global mod_database
-        with open(mod_database_loc) as f:
-            mod_database = json.load(f)
+        if os.path.exists(mod_database_loc):
+            with open(mod_database_loc,'r') as f:
+                mod_database = json.load(f)
+        else:
+            with open(mod_database_loc,'x+') as f:
+                pass
+            print('database not exist, creating a new one')
+            mod_database = {}
 
-
-    def output_mod_information():
-        # print(mod_database)
-        for i in range(len(mod_database)):
-            print(mod_database['mod' + str(i)])
 
 
     def refresh_exist_mods():
@@ -64,18 +65,10 @@ try:
                 else:
                     mod_index = file_db.index(base + '.dll')
                     if ext != ".dll.disable":
-                        mod_database['mod' + str(mod_index - 1)]['active'] = "True"
+                        mod_database['mod' + str(mod_index)]['active'] = "True"
                     else:
-                        mod_database['mod' + str(mod_index - 1)]['active'] = "False"
-            # print(files)
-        # for i in files:
-        #     if i not in file_db:
-        #         mod_database['mod' + str(len(mod_database))] = {
-        #             "name": i[:-4],
-        #             "desc": "none",
-        #             "file_name": i,
-        #             "dependencies": 0
-        #         }
+                        mod_database['mod' + str(mod_index)]['active'] = "False"
+
         print("loaded mods from disc!")
 
 
@@ -92,6 +85,7 @@ try:
                 print("mod does not exist, deleting related data.")
                 mod_database.pop('mod' + str(i))
         resort_db()
+        print('refreshed database!')
 
 
     def addmod(fileroute):
@@ -105,17 +99,28 @@ try:
                     content = content.decode('utf-8')
 
                 data = json.loads(content)
+        print('read mod name:%s'%data['name'])
+        print('read mod description:%s' % data['desc'])
+        choice = input('Continue adding procedure?(Y/N):')
+        if choice != 'Y':
+            print('add aborted!')
+            return
         file_db = []
         for i in range(len(mod_database)):
             file_db.append(mod_database['mod' + str(i)]["file_name"])
         if data['file_name'] in file_db:
             print("mod exist!")
             return
-        # TODO: find the dependencies
-        # TODO: show the desc
+        for i in data['dependencies']:
+            if i == 0:
+                pass
+            if i['file'] in file_db:
+                pass
+            else:
+                print("the dependence mod:%s does not exist.\nplease install it before installing %s!"
+                      %(i['name'],data['name']))
+                return
         data['active'] = "True"
-
-        # TODO: file name data check
         with zipfile.ZipFile(fileroute, 'r') as zip_ref:
             extracted = False
             for file_info in zip_ref.infolist():
@@ -131,25 +136,44 @@ try:
 
 
     def delmod(index):
+        # TODO:dependencies
         global mod_database
-        # TODO: confirm del
+        print('mod to be deleted:'+mod_database['mod'+str(index)])
+        confirm = input('input "Confirm" to confirm the deletion of the mod:')
+        if confirm != "Confirm":
+            print("confirmation aborted!")
+            return
         filedir = mod_database['mod' + str(index)]['file_name']
         dll_file_path = r'.\BepInEx\plugins\\' + filedir
         if os.path.exists(dll_file_path):
             os.remove(dll_file_path)
-            print(f"DLL file {dll_file_path} has been deleted.")
+            print(f"Mod file file {dll_file_path} has been deleted.")
+        elif os.path.exists(dll_file_path+".disabled"):
+            os.remove(dll_file_path)
+            print(f"Mod file file {dll_file_path}.disabled has been deleted.")
         else:
-            print(f"DLL file {dll_file_path} does not exist.\n"
+            print(f"Mod file {dll_file_path} does not exist.\n"
                   f"removing the related mod data")
         mod_database.pop('mod' + str(index))
         resort_db()
         print("deleted!")
-        pass
 
 
     def disablemod(index):
+        # TODO:find dependence and warn
         global mod_database
         filedir = mod_database['mod' + str(index)]['filename']
+        # dependences
+        file_db = []
+        status_db = []
+        for i in range(len(mod_database)):
+            file_db.append(mod_database['mod' + str(i)]["dependencies"])
+            file_db.append(mod_database['mod' + str(i)]["active"])
+
+        if file_db:#change
+            print('the mod %s is dependented by mod %s!\nplease ')
+
+        #
         if mod_database['mod' + str(index)]['active'] != "True":
             print(
                 'mod ' + mod_database['mod' + str(index)]['name'] + " status is abnormal\n aborting and refreshing... ")
@@ -165,6 +189,7 @@ try:
 
 
     def enablemod(index):
+        # TODO: dependencies
         global mod_database
         filedir = mod_database['mod' + str(index)]['filename']
         if mod_database['mod' + str(index)]['active'] != "False":
@@ -192,19 +217,6 @@ try:
         mod_database = new_db
 
 
-    """
-    loaddatabase()
-
-    # output_mod_information()
-    # print(showdesc(0))
-    refresh_mod_status()
-    refresh_exist_mods()
-    resort_db()
-    # print(mod_database)
-    addmod(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways Playtest\MiniAirways_mod_manager\testmod.zip')
-    print(mod_database)
-    index = int(input())
-    delmod(index)"""
     loaddatabase()
     refresh_mod_status()
     refresh_exist_mods()
@@ -216,42 +228,67 @@ try:
         if command == 'addmod':
             route = input('input the path of your downloaded mod zip file location:')
             addmod(route)
+        # TODO: commands
+        elif command == 'disablemod':
+            pass
+        elif command == 'enablemod':
+            pass
+        elif command == 'delmod':
+            pass
+
+        elif command == "showmods":
+            for i in range(len(mod_database)):
+                print('mod name:%s' % mod_database['mod' + str(i)]['name'])
+                print('mod index:%s' % i)
+                print('mod description:%s' % mod_database['mod' + str(i)]['desc'])
+                # print('mod file:%s' % mod_database['mod' + str(i)]['file_name'])
+                # TODO:dependencies
+                if mod_database['mod' + str(i)]['active'] == "True":
+                    print('mod status:Enabled')
+                else:
+                    print('mod status:Disabled')
+                print("")
+        elif command == 'refresh_db':
+            resort_db()
+        elif command == 'refresh_mod_file_stat':
+            refresh_mod_status()
+        elif command == 'loadfromdisc':
+            refresh_exist_mods()
+        elif command == 'exit':
+            break
         elif command == 'help':
             print("""
-            addmod:
-            add a new mod
-            
-            disablemod:
-            disable a mod
-            
-            enablemod:
-            enable a mod
-            
-            delmod:
-            delete a mod
-            
-            showmods:
-            show the mods that are loaded in the database
-            
-            showdescription:
-            show the description of the mod
-            
-            refresh_db:
-            mannually refresh the database
-            
-            refresh_mod_file_stat:
-            refresh the mod status from disc
-            will automantically delete the nonexist mod data
-            
-            loadfromdisc:
-            load mods from file
-            will automantically add mods that are not in database
-            
-            help:
-            show all the usages of the commands
-            
-            exit:
-            exit the program and save the database
+addmod:
+add a new mod
+
+disablemod:
+disable a mod
+
+enablemod:
+enable a mod
+
+delmod:
+delete a mod
+
+showmods:
+show the mods that are loaded in the database
+
+refresh_db:
+mannually refresh the database
+
+refresh_mod_file_stat:
+refresh the mod status from disc
+will automantically delete the nonexist mod data
+
+loadfromdisc:
+load mods from file
+will automantically add mods that are not in database
+
+help:
+show all the usages of the commands
+
+exit:
+exit the program and save the database
             """)
 except Exception as E:
     lj.warn(lj.handler(E))

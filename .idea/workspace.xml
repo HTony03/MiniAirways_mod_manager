@@ -5,9 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1f60b777-8def-4b2e-b993-c6b8b13ddd85" name="更改" comment="testing">
-      <change afterPath="$PROJECT_DIR$/.idea/discord.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MiniAirways_mod_manager_database.json" beforeDir="false" afterPath="$PROJECT_DIR$/MiniAirways_mod_manager_database.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/discord.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/discord.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/MiniAirways_mod_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/MiniAirways_mod_manager.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -74,7 +74,7 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "master",
     "last_opened_file_path": "D:/Program Files (x86)/Steam/steamapps/common/Mini Airways Playtest/MiniAirways_mod_manager/copydb.cmd",
-    "settings.editor.selected.configurable": "pyconsole"
+    "settings.editor.selected.configurable": "io.github.pandier.intellijdiscordrp.settings.DiscordSettingsConfigurable"
   }
 }]]></component>
   <component name="PyConsoleOptionsProvider">
@@ -154,7 +154,15 @@
       <option name="project" value="LOCAL" />
       <updated>1717829722295</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="testing">
+      <option name="closed" value="true" />
+      <created>1717851953134</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1717851953134</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -184,5 +192,21 @@
     <MESSAGE value="1" />
     <MESSAGE value="testing" />
     <option name="LAST_COMMIT_MESSAGE" value="testing" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/MiniAirways_mod_manager.py</url>
+          <line>176</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/MiniAirways_mod_manager.py</url>
+          <line>172</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
