@@ -1,0 +1,19 @@
+{
+  "mod0": {
+    "name": "test",
+    "desc": "test 1st mod",
+    "file_name": "test.dll",
+    "dependencies": 0
+  },
+  "mod1": {
+    "name": "test2",
+    "desc": "test 2nd mod",
+    "file_name": "test2.dll",
+    "dependencies": [
+      {
+        "name": "test",
+        "file": "test.dll"
+      }
+    ]
+  }
+}
