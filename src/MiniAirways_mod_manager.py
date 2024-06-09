@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
 lj.config(name='MiniAirways_mod_manager_log', showinconsole=False)
 lj.clearcurrentlog()
-lj.debug('current loggerjava ver:' + lj.ver)
+lj.debug('current loggerjava ver:' + lj.ver, pos='test_loggerjava')
 mod_database_loc = r'.\MiniAirways_mod_manager_database.json'
 mod_database = {}
 basemoddic = r'.\BepInEx\plugins\\'
@@ -23,15 +23,17 @@ try:
         global mod_database
         try:
             if os.path.exists(mod_database_loc):
-                with open(mod_database_loc, 'r') as f:
-                    mod_database = json.load(f)
-                    lj.debug('read database:\n' + str(mod_database))
+                with open(mod_database_loc, 'r') as f1:
+                    mod_database = json.load(f1)
+                    lj.debug(txt='read database:\n' +
+                             json.dumps(mod_database, ensure_ascii=True, indent=4, sort_keys=False),
+                             pos='main.loaddatabase')
             else:
                 with open(mod_database_loc, 'x+'):
                     pass
                 print('database not exist, creating a new one')
                 mod_database = {}
-                lj.debug('no database read')
+                lj.warn('no database read', pos='main.loaddatabase')
         except JSONDecodeError:
             print("error while decoding the database")
             print("please del the database and reopen the program!")
@@ -49,7 +51,7 @@ try:
             if os.path.isfile(os.path.join(basemoddic, filename)):
 
                 base, ext = os.path.splitext(filename)
-                # 如果base中还有'.'，则继续分割
+
                 while ext and base.count('.') > 0:
                     base, new_ext = os.path.splitext(base)
                     ext = new_ext + ext
@@ -72,7 +74,6 @@ try:
                             "active": "False"
                         }
                 else:
-                    # mod_index = file_db.index(base + '.dll')
 
                     file_db = []
                     for i in range(len(mod_database)):
@@ -106,8 +107,8 @@ try:
         global mod_database
         resort_db()
         with zipfile.ZipFile(fileroute) as zipfile_obj:
-            with zipfile_obj.open('meta-inf.json') as f:
-                content = f.read()
+            with zipfile_obj.open('meta-inf.json') as zip_f:
+                content = zip_f.read()
 
                 if isinstance(content, bytes):
                     content = content.decode('utf-8')
@@ -239,7 +240,7 @@ try:
     def disablemod(index):
         global mod_database
         filedir = mod_database['mod' + str(index)]['file_name']
-        #
+
         file_db = []
         status_db = []
         for i in range(len(mod_database)):
@@ -257,7 +258,7 @@ try:
             print('the mod %s is dependented by mod %s!\nplease diable them before disabling!' % (
                 mod_database['mod' + str(index)]['name'], dependened))
             return
-        #
+
         if mod_database['mod' + str(index)]['active'] != "True":
             print(
                 'mod ' + mod_database['mod' + str(index)]['name'] + " status is abnormal\naborting and refreshing... ")
@@ -311,7 +312,7 @@ try:
 
     while True:
         command = input('[bs] ')
-        lj.debug('user choice:' + command)
+        lj.info('user choice:' + command)
         if command == 'addmod':
             route = input('input the path of your downloaded mod zip file location:')
             addmod(route)
@@ -416,14 +417,13 @@ exit:
 exit the program and save the database
             """)
     print("saving database")
-    lj.debug('saving db:' + str(mod_database))
+    lj.info('saving db:\n' + json.dumps(mod_database, ensure_ascii=True, indent=4, sort_keys=False))
     with open(mod_database_loc, mode='w') as f:
         json.dump(mod_database, f, ensure_ascii=False, indent=4)
-    lj.debug('closing')
+    lj.info('closing')
     os.system("pause")
 except Exception as E:
-    lj.config(showinconsole=True)
-    lj.warn(lj.handler(E))
-    lj.debug('db:\n' + str(mod_database))
-    lj.debug('ver: %s os: %s' % (ver, platform.system()))
+    lj.warn(lj.handler(E), pos='exechandler', showinconsole=True)
+    lj.info('db:\n' + json.dumps(mod_database, ensure_ascii=True, indent=4, sort_keys=False), pos='exechandler')
+    lj.info('ver: %s os: %s' % (ver, platform.system()), pos='exechandler')
     os.system('pause')
