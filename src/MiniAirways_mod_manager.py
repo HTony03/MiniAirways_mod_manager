@@ -61,11 +61,16 @@ try:
                             "active": "False"
                         }
                 else:
-                    mod_index = file_db.index(base + '.dll')
+                    #mod_index = file_db.index(base + '.dll')
+
+                    file_db = []
+                    for i in range(len(mod_database)):
+                        file_db.append(mod_database['mod' + str(i)]["file_name"])
+
                     if ext != ".dll.disable":
-                        mod_database['mod' + str(mod_index)]['active'] = "True"
+                        mod_database['mod' + str(file_db.index(base + '.dll'))]['active'] = "True"
                     else:
-                        mod_database['mod' + str(mod_index)]['active'] = "False"
+                        mod_database['mod' + str(file_db.index(base + '.dll'))]['active'] = "False"
 
         print("loaded mods from disc!")
 
@@ -113,7 +118,10 @@ try:
             if i == 0:
                 pass
             if i['file'] in file_db:
-                pass
+                status = mod_database['mod' + str(file_db.index(i['file']))]['status']
+                if status != "True":
+                    print("the dependence mod:%s is not activated, auto active the mod")
+                    enablemod(file_db.index(i['file']))
             else:
                 print("the dependence mod:%s does not exist.\nplease install it before installing %s!"
                       %(i['name'],data['name']))
@@ -134,8 +142,25 @@ try:
 
 
     def delmod(index):
-        # TODO:dependencies
         global mod_database
+
+        file_db = []
+        status_db = []
+        for i in range(len(mod_database)):
+            file_db.append(mod_database['mod' + str(i)]["dependencies"])
+            status_db.append(mod_database['mod' + str(i)]["active"])
+
+        dependened = []
+        for i in file_db:
+            if i == 0:
+                continue
+            for j in i:
+                if j['name'] == mod_database['mod' + str(index)]['name'] and status_db[file_db.index(i)] == 'True':
+                    dependened.append(mod_database['mod'+str(file_db.index(i))]['name'])
+        if dependened:
+            print('the mod %s is dependented by mod %s!\nplease diable them before removing!'%(mod_database['mod'+str(index)]['name'],dependened))
+            return
+
         print('mod to be deleted:'+mod_database['mod'+str(index)])
         confirm = input('input "Confirm" to confirm the deletion of the mod:')
         if confirm != "Confirm":
@@ -158,56 +183,81 @@ try:
 
 
     def disablemod(index):
-        # TODO:find dependence and warn
         global mod_database
-        filedir = mod_database['mod' + str(index)]['filename']
-        # dependences_test
+        filedir = mod_database['mod' + str(index)]['file_name']
+        #
         file_db = []
         status_db = []
         for i in range(len(mod_database)):
             file_db.append(mod_database['mod' + str(i)]["dependencies"])
-            file_db.append(mod_database['mod' + str(i)]["active"])
+            status_db.append(mod_database['mod' + str(i)]["active"])
 
         dependened = []
         for i in file_db:
-            if file_db == 0:
-                pass
-            elif file_db['name'] == mod_database['mod' + str(index)]['name'] and status_db[file_db.index(i)] == 'True':
-                dependened.append(mod_database[file_db.index(i)['name']]) 
+            if i == 0:
+                continue
+            for j in i:
+                if j['name'] == mod_database['mod' + str(index)]['name'] and status_db[file_db.index(i)] == 'True':
+                    dependened.append(mod_database['mod'+str(file_db.index(i))]['name'])
         if dependened:
             print('the mod %s is dependented by mod %s!\nplease diable them before disabling!'%(mod_database['mod'+str(index)]['name'],dependened))
             return
         #
         if mod_database['mod' + str(index)]['active'] != "True":
             print(
-                'mod ' + mod_database['mod' + str(index)]['name'] + " status is abnormal\n aborting and refreshing... ")
+                'mod ' + mod_database['mod' + str(index)]['name'] + " status is abnormal\naborting and refreshing... ")
             refresh_exist_mods()
-        if not os.path.exists(filedir):
+            return
+        if not os.path.exists(basemoddic + filedir):
             print(
-                'mod ' + mod_database['mod' + str(index)]['name'] + " status is abnormal\n aborting and refreshing... ")
+                'mod ' + mod_database['mod' + str(index)]['name'] + " status is abnormal\naborting and refreshing... ")
             mod_database['mod' + str(index)]['active'] = "False"
             refresh_exist_mods()
+            return
         os.rename(basemoddic + filedir, basemoddic + filedir + '.disabled')
         mod_database['mod' + str(index)]['active'] = "False"
-        print("changed mod " + mod_database['mod' + str(index)]['name'] + ' status has changed to disabled')
+        print("changed mod " + mod_database['mod' + str(index)]['name'] + ' status to disabled')
 
 
     def enablemod(index):
-        # TODO: dependencies
         global mod_database
-        filedir = mod_database['mod' + str(index)]['filename']
+        filedir = mod_database['mod' + str(index)]['file_name']
+
+        name_db = []
+        status_db = []
+        for i in range(len(mod_database)):
+            name_db.append(mod_database['mod' + str(i)]["name"])
+            status_db.append(mod_database['mod' + str(i)]["active"])
+        passtest = True
+        if mod_database['mod' + str(index)]['dependencies']:
+            for i in mod_database['mod' + str(index)]['dependencies']:
+                if i['name'] in name_db:
+                    if status_db[name_db.index(i['name'])] != "True":
+                        print("the dependence mod:%s is not activated."%i['name'])
+                        passtest = False
+                else:
+                    print("the dependence mod:%s does not in the database."%i['name'])
+                    print("if you've installed but still have this tip please reload "
+                          "the mods from disc using \"loadfromdisc\"")
+                    passtest = False
+        if not passtest:
+            print("dependence test failed.")
+            return
+
         if mod_database['mod' + str(index)]['active'] != "False":
             print(
                 'mod ' + mod_database['mod' + str(index)]['name'] + " status is abnormal\n aborting and refreshing... ")
             refresh_exist_mods()
-        if not os.path.exists(filedir + '.disabled'):
+            return
+        if not os.path.exists(basemoddic + filedir + '.disabled'):
             print(
                 'mod ' + mod_database['mod' + str(index)]['name'] + " status is abnormal\n aborting and refreshing... ")
             mod_database['mod' + str(index)]['active'] = "False"
             refresh_exist_mods()
+            return
         os.rename(basemoddic + filedir + '.disabled', basemoddic + filedir)
         mod_database['mod' + str(index)]['active'] = "True"
-        print("changed mod " + mod_database['mod' + str(index)]['name'] + ' status has changed to enabled')
+        print("changed mod " + mod_database['mod' + str(index)]['name'] + ' status to enabled')
 
 
     def showdesc(index):
@@ -225,10 +275,12 @@ try:
     refresh_mod_status()
     refresh_exist_mods()
     resort_db()
+
     print('Mini Airways Mod manager %s on %s' % (ver, platform.system()))
     print('Type "help" for command usages')
 
     # TODO: diff ver compact
+
     while True:
         command = input('[bs] ')
         if command == 'addmod':
@@ -274,10 +326,16 @@ try:
             resort_db()
             for i in range(len(mod_database)):
                 print('mod name:%s' % mod_database['mod' + str(i)]['name'])
+                if 'ver' in mod_database['mod' + str(i)]:
+                    print('mod version:%s'% mod_database['mod' + str(i)]['ver'])
                 print('mod index:%s' % i)
                 print('mod description:%s' % mod_database['mod' + str(i)]['desc'])
-                # print('mod file:%s' % mod_database['mod' + str(i)]['file_name'])
-                # TODO:dependencies
+                print('mod dependences:')
+                if mod_database['mod' + str(i)]["dependencies"]:
+                    for k in mod_database['mod' + str(i)]["dependencies"]:
+                        print('dependence %s name:%s'%(mod_database['mod' + str(i)]['dependencies'].index(k) + 1,k['name']))
+                else:
+                    print("None")
                 if mod_database['mod' + str(i)]['active'] == "True":
                     print('mod status:Enabled')
                 else:
@@ -316,7 +374,7 @@ refresh the mod status from disc
 will automantically delete the nonexist mod data
 
 loadfromdisc:
-load mods from file
+load mods from disc
 will automantically add mods that are not in database
 
 help:
