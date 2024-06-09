@@ -9,25 +9,29 @@ from json import JSONDecodeError
 if __name__ == "__main__":
     pass
 
-try:
-    lj.config(name='MiniAirways_mod_manager_log')
-    mod_database_loc = r'.\MiniAirways_mod_manager_database.json'
-    mod_database = {}
-    basemoddic = r'.\BepInEx\plugins\\'
-    ver = '0.0.1.dev'
+lj.config(name='MiniAirways_mod_manager_log', showinconsole=False)
+lj.clearcurrentlog()
+lj.debug('current loggerjava ver:' + lj.ver)
+mod_database_loc = r'.\MiniAirways_mod_manager_database.json'
+mod_database = {}
+basemoddic = r'.\BepInEx\plugins\\'
+ver = '0.0.1.dev'
 
+try:
 
     def loaddatabase():
         global mod_database
         try:
             if os.path.exists(mod_database_loc):
-                with open(mod_database_loc,'r') as f:
+                with open(mod_database_loc, 'r') as f:
                     mod_database = json.load(f)
+                    lj.debug('read database:\n' + str(mod_database))
             else:
-                with open(mod_database_loc,'x+') as f:
+                with open(mod_database_loc, 'x+'):
                     pass
                 print('database not exist, creating a new one')
                 mod_database = {}
+                lj.debug('no database read')
         except JSONDecodeError:
             print("error while decoding the database")
             print("please del the database and reopen the program!")
@@ -68,7 +72,7 @@ try:
                             "active": "False"
                         }
                 else:
-                    #mod_index = file_db.index(base + '.dll')
+                    # mod_index = file_db.index(base + '.dll')
 
                     file_db = []
                     for i in range(len(mod_database)):
@@ -86,11 +90,11 @@ try:
         global mod_database
         resort_db()
         for i in range(len(mod_database)):
-            listmod = mod_database['mod'+str(i)]
-            if os.path.exists(basemoddic+listmod["file_name"]):
-                mod_database['mod'+str(i)]["active"] = "True"
-            elif os.path.exists(basemoddic+listmod['file_name']+'.disabled'):
-                mod_database['mod'+str(i)]['active'] = 'False'
+            listmod = mod_database['mod' + str(i)]
+            if os.path.exists(basemoddic + listmod["file_name"]):
+                mod_database['mod' + str(i)]["active"] = "True"
+            elif os.path.exists(basemoddic + listmod['file_name'] + '.disabled'):
+                mod_database['mod' + str(i)]['active'] = 'False'
             else:
                 print("mod does not exist, deleting related data.")
                 mod_database.pop('mod' + str(i))
@@ -109,7 +113,7 @@ try:
                     content = content.decode('utf-8')
 
                 data = json.loads(content)
-        print('read mod name:%s'%data['name'])
+        print('read mod name:%s' % data['name'])
         print('read mod description:%s' % data['desc'])
         choice = input('Continue adding procedure?(Y/N):')
         if choice != 'Y':
@@ -132,7 +136,7 @@ try:
                         enablemod(file_db.index(i['file']))
                 else:
                     print("the dependence mod:%s does not exist.\nplease install it before installing %s!"
-                          %(i['name'],data['name']))
+                          % (i['name'], data['name']))
                     return
         data['active'] = "True"
         with zipfile.ZipFile(fileroute, 'r') as zip_ref:
@@ -164,12 +168,13 @@ try:
                 continue
             for j in i:
                 if j['name'] == mod_database['mod' + str(index)]['name'] and status_db[file_db.index(i)] == 'True':
-                    dependened.append(mod_database['mod'+str(file_db.index(i))]['name'])
+                    dependened.append(mod_database['mod' + str(file_db.index(i))]['name'])
         if dependened:
-            print('the mod %s is dependented by mod %s!\nplease diable them before removing!'%(mod_database['mod'+str(index)]['name'],dependened))
+            print('the mod %s is dependented by mod %s!\nplease diable them before removing!' % (
+                mod_database['mod' + str(index)]['name'], dependened))
             return
 
-        print('mod to be deleted:'+mod_database['mod'+str(index)]['name'])
+        print('mod to be deleted:' + mod_database['mod' + str(index)]['name'])
         confirm = input('input "Confirm" to confirm the deletion of the mod:')
         if confirm != "Confirm":
             print("confirmation aborted!")
@@ -179,8 +184,8 @@ try:
         if os.path.exists(dll_file_path):
             os.remove(dll_file_path)
             print(f"Mod file file {dll_file_path} has been deleted.")
-        elif os.path.exists(dll_file_path+".disabled"):
-            os.remove(dll_file_path+".disabled")
+        elif os.path.exists(dll_file_path + ".disabled"):
+            os.remove(dll_file_path + ".disabled")
             print(f"Mod file file {dll_file_path}.disabled has been deleted.")
         else:
             print(f"Mod file {dll_file_path} does not exist.\n"
@@ -188,43 +193,6 @@ try:
         mod_database.pop('mod' + str(index))
         resort_db()
         print("deleted!")
-
-
-    def disablemod(index):
-        global mod_database
-        filedir = mod_database['mod' + str(index)]['file_name']
-        #
-        file_db = []
-        status_db = []
-        for i in range(len(mod_database)):
-            file_db.append(mod_database['mod' + str(i)]["dependencies"])
-            status_db.append(mod_database['mod' + str(i)]["active"])
-
-        dependened = []
-        for i in file_db:
-            if i == 0:
-                continue
-            for j in i:
-                if j['name'] == mod_database['mod' + str(index)]['name'] and status_db[file_db.index(i)] == 'True':
-                    dependened.append(mod_database['mod'+str(file_db.index(i))]['name'])
-        if dependened:
-            print('the mod %s is dependented by mod %s!\nplease diable them before disabling!'%(mod_database['mod'+str(index)]['name'],dependened))
-            return
-        #
-        if mod_database['mod' + str(index)]['active'] != "True":
-            print(
-                'mod ' + mod_database['mod' + str(index)]['name'] + " status is abnormal\naborting and refreshing... ")
-            refresh_exist_mods()
-            return
-        if not os.path.exists(basemoddic + filedir):
-            print(
-                'mod ' + mod_database['mod' + str(index)]['name'] + " status is abnormal\naborting and refreshing... ")
-            mod_database['mod' + str(index)]['active'] = "False"
-            refresh_exist_mods()
-            return
-        os.rename(basemoddic + filedir, basemoddic + filedir + '.disabled')
-        mod_database['mod' + str(index)]['active'] = "False"
-        print("changed mod " + mod_database['mod' + str(index)]['name'] + ' status to disabled')
 
 
     def enablemod(index):
@@ -241,10 +209,10 @@ try:
             for i in mod_database['mod' + str(index)]['dependencies']:
                 if i['name'] in name_db:
                     if status_db[name_db.index(i['name'])] != "True":
-                        print("the dependence mod:%s is not activated."%i['name'])
+                        print("the dependence mod:%s is not activated." % i['name'])
                         passtest = False
                 else:
-                    print("the dependence mod:%s does not in the database."%i['name'])
+                    print("the dependence mod:%s does not in the database." % i['name'])
                     print("if you've installed but still have this tip please reload "
                           "the mods from disc using \"loadfromdisc\"")
                     passtest = False
@@ -268,16 +236,67 @@ try:
         print("changed mod " + mod_database['mod' + str(index)]['name'] + ' status to enabled')
 
 
+    def disablemod(index):
+        global mod_database
+        filedir = mod_database['mod' + str(index)]['file_name']
+        #
+        file_db = []
+        status_db = []
+        for i in range(len(mod_database)):
+            file_db.append(mod_database['mod' + str(i)]["dependencies"])
+            status_db.append(mod_database['mod' + str(i)]["active"])
+
+        dependened = []
+        for i in file_db:
+            if i == 0:
+                continue
+            for j in i:
+                if j['name'] == mod_database['mod' + str(index)]['name'] and status_db[file_db.index(i)] == 'True':
+                    dependened.append(mod_database['mod' + str(file_db.index(i))]['name'])
+        if dependened:
+            print('the mod %s is dependented by mod %s!\nplease diable them before disabling!' % (
+                mod_database['mod' + str(index)]['name'], dependened))
+            return
+        #
+        if mod_database['mod' + str(index)]['active'] != "True":
+            print(
+                'mod ' + mod_database['mod' + str(index)]['name'] + " status is abnormal\naborting and refreshing... ")
+            refresh_exist_mods()
+            return
+        if not os.path.exists(basemoddic + filedir):
+            print(
+                'mod ' + mod_database['mod' + str(index)]['name'] + " status is abnormal\naborting and refreshing... ")
+            mod_database['mod' + str(index)]['active'] = "False"
+            refresh_exist_mods()
+            return
+        os.rename(basemoddic + filedir, basemoddic + filedir + '.disabled')
+        mod_database['mod' + str(index)]['active'] = "False"
+        print("changed mod " + mod_database['mod' + str(index)]['name'] + ' status to disabled')
+
+
     def showdesc(index):
         return mod_database['mod' + str(index)]['desc']
+
 
     def resort_db():
         global mod_database
         new_db = {}
-        for index,data in mod_database.items():
-            new_db['mod'+str(len(new_db))] = data
+        for index, data in mod_database.items():
+            new_db['mod' + str(len(new_db))] = data
         mod_database = new_db
 
+
+    # Main
+
+    lj.register_def(loaddatabase)
+    lj.register_def(refresh_exist_mods)
+    lj.register_def(refresh_mod_status)
+    lj.register_def(addmod)
+    lj.register_def(delmod)
+    lj.register_def(enablemod)
+    lj.register_def(disablemod)
+    lj.register_def(showdesc)
+    lj.register_def(resort_db)
 
     loaddatabase()
     refresh_mod_status()
@@ -292,6 +311,7 @@ try:
 
     while True:
         command = input('[bs] ')
+        lj.debug('user choice:' + command)
         if command == 'addmod':
             route = input('input the path of your downloaded mod zip file location:')
             addmod(route)
@@ -303,7 +323,7 @@ try:
                         break
                 except ValueError:
                     print("invaid index")
-            if mod_database['mod'+str(indexx)]['active'] == "False":
+            if mod_database['mod' + str(indexx)]['active'] == "False":
                 print("the mod is currently not active!")
                 print("if the status is not the same as it in the disc, please use \"refresh_mod_file_stat\".")
             else:
@@ -316,7 +336,7 @@ try:
                         break
                 except ValueError:
                     print("invaid index")
-            if mod_database['mod'+str(indexx)]['active'] == "True":
+            if mod_database['mod' + str(indexx)]['active'] == "True":
                 print("the mod is currently active!")
                 print("if the status is not the same as it in the disc, please use \"refresh_mod_file_stat\".")
             else:
@@ -336,13 +356,14 @@ try:
             for i in range(len(mod_database)):
                 print('mod name:%s' % mod_database['mod' + str(i)]['name'])
                 if 'ver' in mod_database['mod' + str(i)]:
-                    print('mod version:%s'% mod_database['mod' + str(i)]['ver'])
+                    print('mod version:%s' % mod_database['mod' + str(i)]['ver'])
                 print('mod index:%s' % i)
                 print('mod description:%s' % mod_database['mod' + str(i)]['desc'])
                 print('mod dependences:')
                 if mod_database['mod' + str(i)]["dependencies"]:
                     for k in mod_database['mod' + str(i)]["dependencies"]:
-                        print('dependence %s name:%s'%(mod_database['mod' + str(i)]['dependencies'].index(k) + 1,k['name']))
+                        print('dependence %s name:%s' % (
+                            mod_database['mod' + str(i)]['dependencies'].index(k) + 1, k['name']))
                 else:
                     print("None")
                 if mod_database['mod' + str(i)]['active'] == "True":
@@ -356,6 +377,8 @@ try:
             refresh_mod_status()
         elif command == 'loadfromdisc':
             refresh_exist_mods()
+        elif command == 'rungame':
+            os.system(r'.\MiniAirways.exe')
         elif command == 'exit':
             break
         elif command == 'help':
@@ -393,9 +416,14 @@ exit:
 exit the program and save the database
             """)
     print("saving database")
-    with open(mod_database_loc,mode='w') as f:
+    lj.debug('saving db:' + str(mod_database))
+    with open(mod_database_loc, mode='w') as f:
         json.dump(mod_database, f, ensure_ascii=False, indent=4)
+    lj.debug('closing')
     os.system("pause")
 except Exception as E:
+    lj.config(showinconsole=True)
     lj.warn(lj.handler(E))
+    lj.debug('db:\n' + str(mod_database))
+    lj.debug('ver: %s os: %s' % (ver, platform.system()))
     os.system('pause')
