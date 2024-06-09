@@ -28,7 +28,6 @@ try:
             mod_database = {}
 
 
-
     def refresh_exist_mods():
         global mod_database
         file_db = []
@@ -37,7 +36,6 @@ try:
 
         for filename in os.listdir(basemoddic):
             if os.path.isfile(os.path.join(basemoddic, filename)):
-                # files.append(filename)
 
                 base, ext = os.path.splitext(filename)
                 # 如果base中还有'.'，则继续分割
@@ -163,16 +161,22 @@ try:
         # TODO:find dependence and warn
         global mod_database
         filedir = mod_database['mod' + str(index)]['filename']
-        # dependences
+        # dependences_test
         file_db = []
         status_db = []
         for i in range(len(mod_database)):
             file_db.append(mod_database['mod' + str(i)]["dependencies"])
             file_db.append(mod_database['mod' + str(i)]["active"])
 
-        if file_db:#change
-            print('the mod %s is dependented by mod %s!\nplease ')
-
+        dependened = []
+        for i in file_db:
+            if file_db == 0:
+                pass
+            elif file_db['name'] == mod_database['mod' + str(index)]['name'] and status_db[file_db.index(i)] == 'True':
+                dependened.append(mod_database[file_db.index(i)['name']]) 
+        if dependened:
+            print('the mod %s is dependented by mod %s!\nplease diable them before disabling!'%(mod_database['mod'+str(index)]['name'],dependened))
+            return
         #
         if mod_database['mod' + str(index)]['active'] != "True":
             print(
@@ -223,20 +227,51 @@ try:
     resort_db()
     print('Mini Airways Mod manager %s on %s' % (ver, platform.system()))
     print('Type "help" for command usages')
+
+    # TODO: diff ver compact
     while True:
         command = input('[bs] ')
         if command == 'addmod':
             route = input('input the path of your downloaded mod zip file location:')
             addmod(route)
-        # TODO: commands
         elif command == 'disablemod':
-            pass
+            while True:
+                try:
+                    indexx = int(input("mod index:"))
+                    if 0 <= indexx < len(mod_database):
+                        break
+                except ValueError:
+                    print("invaid index")
+            if mod_database['mod'+str(indexx)]['active'] == "False":
+                print("the mod is currently not active!")
+                print("if the status is not the same as it in the disc, please use \"refresh_mod_file_stat\".")
+            else:
+                disablemod(indexx)
         elif command == 'enablemod':
-            pass
+            while True:
+                try:
+                    indexx = int(input("mod index:"))
+                    if 0 <= indexx < len(mod_database):
+                        break
+                except ValueError:
+                    print("invaid index")
+            if mod_database['mod'+str(indexx)]['active'] == "True":
+                print("the mod is currently active!")
+                print("if the status is not the same as it in the disc, please use \"refresh_mod_file_stat\".")
+            else:
+                enablemod(indexx)
         elif command == 'delmod':
-            pass
+            while True:
+                try:
+                    indexx = int(input("mod index:"))
+                    if 0 <= indexx < len(mod_database):
+                        break
+                except ValueError:
+                    print("invaid index")
+            delmod(indexx)
 
         elif command == "showmods":
+            resort_db()
             for i in range(len(mod_database)):
                 print('mod name:%s' % mod_database['mod' + str(i)]['name'])
                 print('mod index:%s' % i)
