@@ -4,6 +4,7 @@ import zipfile
 import platform
 
 import loggerjava as lj
+from json import JSONDecodeError
 
 if __name__ == "__main__":
     pass
@@ -18,14 +19,20 @@ try:
 
     def loaddatabase():
         global mod_database
-        if os.path.exists(mod_database_loc):
-            with open(mod_database_loc,'r') as f:
-                mod_database = json.load(f)
-        else:
-            with open(mod_database_loc,'x+') as f:
-                pass
-            print('database not exist, creating a new one')
-            mod_database = {}
+        try:
+            if os.path.exists(mod_database_loc):
+                with open(mod_database_loc,'r') as f:
+                    mod_database = json.load(f)
+            else:
+                with open(mod_database_loc,'x+') as f:
+                    pass
+                print('database not exist, creating a new one')
+                mod_database = {}
+        except JSONDecodeError:
+            print("error while decoding the database")
+            print("please del the database and reopen the program!")
+            os.system("pause")
+            exit(10)
 
 
     def refresh_exist_mods():
@@ -114,18 +121,19 @@ try:
         if data['file_name'] in file_db:
             print("mod exist!")
             return
-        for i in data['dependencies']:
-            if i == 0:
-                pass
-            if i['file'] in file_db:
-                status = mod_database['mod' + str(file_db.index(i['file']))]['status']
-                if status != "True":
-                    print("the dependence mod:%s is not activated, auto active the mod")
-                    enablemod(file_db.index(i['file']))
-            else:
-                print("the dependence mod:%s does not exist.\nplease install it before installing %s!"
-                      %(i['name'],data['name']))
-                return
+        if data['dependencies']:
+            for i in data['dependencies']:
+                if i == 0:
+                    pass
+                if i['file'] in file_db:
+                    status = mod_database['mod' + str(file_db.index(i['file']))]['status']
+                    if status != "True":
+                        print("the dependence mod:%s is not activated, auto active the mod")
+                        enablemod(file_db.index(i['file']))
+                else:
+                    print("the dependence mod:%s does not exist.\nplease install it before installing %s!"
+                          %(i['name'],data['name']))
+                    return
         data['active'] = "True"
         with zipfile.ZipFile(fileroute, 'r') as zip_ref:
             extracted = False
@@ -161,7 +169,7 @@ try:
             print('the mod %s is dependented by mod %s!\nplease diable them before removing!'%(mod_database['mod'+str(index)]['name'],dependened))
             return
 
-        print('mod to be deleted:'+mod_database['mod'+str(index)])
+        print('mod to be deleted:'+mod_database['mod'+str(index)]['name'])
         confirm = input('input "Confirm" to confirm the deletion of the mod:')
         if confirm != "Confirm":
             print("confirmation aborted!")
@@ -172,7 +180,7 @@ try:
             os.remove(dll_file_path)
             print(f"Mod file file {dll_file_path} has been deleted.")
         elif os.path.exists(dll_file_path+".disabled"):
-            os.remove(dll_file_path)
+            os.remove(dll_file_path+".disabled")
             print(f"Mod file file {dll_file_path}.disabled has been deleted.")
         else:
             print(f"Mod file {dll_file_path} does not exist.\n"
@@ -280,6 +288,7 @@ try:
     print('Type "help" for command usages')
 
     # TODO: diff ver compact
+    # TODO: new command format
 
     while True:
         command = input('[bs] ')
@@ -383,6 +392,10 @@ show all the usages of the commands
 exit:
 exit the program and save the database
             """)
+    print("saving database")
+    with open(mod_database_loc,mode='w') as f:
+        json.dump(mod_database, f, ensure_ascii=False, indent=4)
+    os.system("pause")
 except Exception as E:
     lj.warn(lj.handler(E))
     os.system('pause')

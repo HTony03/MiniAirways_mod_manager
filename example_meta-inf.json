@@ -1,18 +1,21 @@
 {
-    "name": "Mod name",
-    "desc": "Mod descriptions",
-    "file_name": "<mod_file_name>.dll",
-    "dependencies": 0
+  "name": "Mod name",
+  "ver": "v0.0.1",
+  "desc": "Mod descriptions",
+  "file_name": "<mod_file_name>.dll",
+  "dependencies": 0
 }
 
 {
-    "name": "Mod name",
-    "desc": "Mod descriptions",
-    "file_name": "<mod_file_name>.dll",
-    "dependencies": [
-      {
-        "name": "dependent_mod_name",
-        "file": "<dependent_mod_file_name>.dll"
-      }
-    ]
+  "name": "Mod name",
+  "ver": "v0.0.1",
+  "desc": "Mod descriptions",
+  "file_name": "<mod_file_name>.dll",
+  "dependencies": [
+    {
+      "name": "dependent_mod_name",
+      "file": "<dependent_mod_file_name>.dll",
+      "ver": "v0.0.1"
+    }
+  ]
 }
