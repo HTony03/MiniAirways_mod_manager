@@ -14,8 +14,12 @@ lj.clearcurrentlog()
 lj.debug('current loggerjava ver:' + lj.ver, pos='test_loggerjava')
 mod_database_loc = r'.\MiniAirways_mod_manager_database.json'
 mod_database = {}
+db_name = []
+db_filename = []
+db_dependencies = []
+db_stat = []
 basemoddic = r'.\BepInEx\plugins\\'
-ver = '0.0.1.dev'
+ver = '0.0.2'
 
 try:
 
@@ -26,8 +30,13 @@ try:
                 with open(mod_database_loc, 'r') as f1:
                     mod_database = json.load(f1)
                     lj.debug(txt='read database:\n' +
-                             json.dumps(mod_database, ensure_ascii=True, indent=4, sort_keys=False),
+                                 json.dumps(mod_database, ensure_ascii=True, indent=4, sort_keys=False),
                              pos='main.loaddatabase')
+                for i in range(len(mod_database)):
+                    db_name.append(mod_database['mod' + str(i)]["name"])
+                    db_filename.append(mod_database['mod' + str(i)]["file_name"])
+                    db_dependencies.append(mod_database['mod' + str(i)]["dependencies"])
+                    db_stat.append(mod_database['mod' + str(i)]['active'])
             else:
                 with open(mod_database_loc, 'x+'):
                     pass
@@ -43,9 +52,6 @@ try:
 
     def refresh_exist_mods():
         global mod_database
-        file_db = []
-        for i in range(len(mod_database)):
-            file_db.append(mod_database['mod' + str(i)]["file_name"])
 
         for filename in os.listdir(basemoddic):
             if os.path.isfile(os.path.join(basemoddic, filename)):
@@ -56,7 +62,7 @@ try:
                     base, new_ext = os.path.splitext(base)
                     ext = new_ext + ext
 
-                if filename not in file_db:
+                if (base + '.dll') not in db_filename:
                     if ext != ".dll.disable":
                         mod_database['mod' + str(len(mod_database))] = {
                             "name": base,
@@ -75,30 +81,25 @@ try:
                         }
                 else:
 
-                    file_db = []
-                    for i in range(len(mod_database)):
-                        file_db.append(mod_database['mod' + str(i)]["file_name"])
-
                     if ext != ".dll.disable":
-                        mod_database['mod' + str(file_db.index(base + '.dll'))]['active'] = "True"
+                        mod_database['mod' + str(db_filename.index(base + '.dll'))]['active'] = "True"
                     else:
-                        mod_database['mod' + str(file_db.index(base + '.dll'))]['active'] = "False"
-
+                        mod_database['mod' + str(db_filename.index(base + '.dll'))]['active'] = "False"
+        resort_db()
         print("loaded mods from disc!")
 
 
     def refresh_mod_status():
         global mod_database
         resort_db()
-        for i in range(len(mod_database)):
-            listmod = mod_database['mod' + str(i)]
-            if os.path.exists(basemoddic + listmod["file_name"]):
-                mod_database['mod' + str(i)]["active"] = "True"
-            elif os.path.exists(basemoddic + listmod['file_name'] + '.disabled'):
-                mod_database['mod' + str(i)]['active'] = 'False'
+        for i in db_filename:
+            if os.path.exists(basemoddic + i):
+                mod_database['mod' + str(db_filename.index(i))]["active"] = "True"
+            elif os.path.exists(basemoddic + i + '.disabled'):
+                mod_database['mod' + str(db_filename.index(i))]['active'] = 'False'
             else:
                 print("mod does not exist, deleting related data.")
-                mod_database.pop('mod' + str(i))
+                mod_database.pop('mod' + str(db_filename.index(i)))
         resort_db()
         print('refreshed database!')
 
@@ -120,21 +121,19 @@ try:
         if choice != 'Y':
             print('add aborted!')
             return
-        file_db = []
-        for i in range(len(mod_database)):
-            file_db.append(mod_database['mod' + str(i)]["file_name"])
-        if data['file_name'] in file_db:
+
+        if data['file_name'] in db_filename:
             print("mod exist!")
             return
         if data['dependencies']:
             for i in data['dependencies']:
                 if i == 0:
                     pass
-                if i['file'] in file_db:
-                    status = mod_database['mod' + str(file_db.index(i['file']))]['status']
+                if i['file'] in db_filename:
+                    status = mod_database['mod' + str(db_filename.index(i['file']))]['status']
                     if status != "True":
                         print("the dependence mod:%s is not activated, auto active the mod")
-                        enablemod(file_db.index(i['file']))
+                        enablemod(db_filename.index(i['file']))
                 else:
                     print("the dependence mod:%s does not exist.\nplease install it before installing %s!"
                           % (i['name'], data['name']))
@@ -157,19 +156,14 @@ try:
     def delmod(index):
         global mod_database
 
-        file_db = []
-        status_db = []
-        for i in range(len(mod_database)):
-            file_db.append(mod_database['mod' + str(i)]["dependencies"])
-            status_db.append(mod_database['mod' + str(i)]["active"])
-
         dependened = []
-        for i in file_db:
+        for i in db_dependencies:
             if i == 0:
                 continue
             for j in i:
-                if j['name'] == mod_database['mod' + str(index)]['name'] and status_db[file_db.index(i)] == 'True':
-                    dependened.append(mod_database['mod' + str(file_db.index(i))]['name'])
+                if (j['name'] == mod_database['mod' + str(index)]['name'] and
+                        db_stat[db_dependencies.index(i)] == 'True'):
+                    dependened.append(mod_database['mod' + str(db_dependencies.index(i))]['name'])
         if dependened:
             print('the mod %s is dependented by mod %s!\nplease diable them before removing!' % (
                 mod_database['mod' + str(index)]['name'], dependened))
@@ -200,16 +194,11 @@ try:
         global mod_database
         filedir = mod_database['mod' + str(index)]['file_name']
 
-        name_db = []
-        status_db = []
-        for i in range(len(mod_database)):
-            name_db.append(mod_database['mod' + str(i)]["name"])
-            status_db.append(mod_database['mod' + str(i)]["active"])
         passtest = True
         if mod_database['mod' + str(index)]['dependencies']:
             for i in mod_database['mod' + str(index)]['dependencies']:
-                if i['name'] in name_db:
-                    if status_db[name_db.index(i['name'])] != "True":
+                if i['file'] in db_filename:
+                    if db_stat[db_filename.index(i['name'])] != "True":
                         print("the dependence mod:%s is not activated." % i['name'])
                         passtest = False
                 else:
@@ -241,19 +230,14 @@ try:
         global mod_database
         filedir = mod_database['mod' + str(index)]['file_name']
 
-        file_db = []
-        status_db = []
-        for i in range(len(mod_database)):
-            file_db.append(mod_database['mod' + str(i)]["dependencies"])
-            status_db.append(mod_database['mod' + str(i)]["active"])
-
         dependened = []
-        for i in file_db:
+        for i in db_dependencies:
             if i == 0:
                 continue
             for j in i:
-                if j['name'] == mod_database['mod' + str(index)]['name'] and status_db[file_db.index(i)] == 'True':
-                    dependened.append(mod_database['mod' + str(file_db.index(i))]['name'])
+                if (j['name'] == mod_database['mod' + str(index)]['name'] and
+                        db_stat[db_dependencies.index(i)] == 'True'):
+                    dependened.append(mod_database['mod' + str(db_dependencies.index(i))]['name'])
         if dependened:
             print('the mod %s is dependented by mod %s!\nplease diable them before disabling!' % (
                 mod_database['mod' + str(index)]['name'], dependened))
@@ -280,11 +264,17 @@ try:
 
 
     def resort_db():
-        global mod_database
+        global mod_database, db_name, db_filename, db_dependencies, db_stat
         new_db = {}
         for index, data in mod_database.items():
             new_db['mod' + str(len(new_db))] = data
         mod_database = new_db
+
+        for i in range(len(mod_database)):
+            db_name.append(mod_database['mod' + str(i)]["name"])
+            db_filename.append(mod_database['mod' + str(i)]["file_name"])
+            db_dependencies.append(mod_database['mod' + str(i)]["dependencies"])
+            db_stat.append(mod_database['mod' + str(i)]['active'])
 
 
     # Main
@@ -300,8 +290,8 @@ try:
     lj.register_def(resort_db)
 
     loaddatabase()
-    refresh_mod_status()
     refresh_exist_mods()
+    refresh_mod_status()
     resort_db()
 
     print('Mini Airways Mod manager %s on %s' % (ver, platform.system()))
@@ -322,6 +312,7 @@ try:
                     indexx = int(input("mod index:"))
                     if 0 <= indexx < len(mod_database):
                         break
+                    print("invaid index")
                 except ValueError:
                     print("invaid index")
             if mod_database['mod' + str(indexx)]['active'] == "False":
@@ -335,6 +326,7 @@ try:
                     indexx = int(input("mod index:"))
                     if 0 <= indexx < len(mod_database):
                         break
+                    print("invaid index")
                 except ValueError:
                     print("invaid index")
             if mod_database['mod' + str(indexx)]['active'] == "True":
@@ -348,6 +340,7 @@ try:
                     indexx = int(input("mod index:"))
                     if 0 <= indexx < len(mod_database):
                         break
+                    print("invaid index")
                 except ValueError:
                     print("invaid index")
             delmod(indexx)
