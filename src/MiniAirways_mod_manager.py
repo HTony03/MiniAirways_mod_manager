@@ -22,6 +22,34 @@ basemoddic = r'.\BepInEx\plugins\\'
 ver = '0.0.2'
 
 try:
+    class Database:
+        def __init__(self):
+            self.database = {}
+            self.db_name = []
+            self.db_filename = []
+            self.db_dependencies = []
+            self.db_stat = []
+
+        def refreshdb(self):
+            new_db = {}
+            for index, data in self.database.items():
+                new_db['mod' + str(len(new_db))] = data
+            self.database = new_db
+
+            self.db_name = []
+            self.db_filename = []
+            self.db_dependencies = []
+            self.db_stat = []
+            for i in range(len(self.database)):
+                self.db_name.append(mod_database['mod' + str(i)]["name"])
+                self.db_filename.append(mod_database['mod' + str(i)]["file_name"])
+                self.db_dependencies.append(mod_database['mod' + str(i)]["dependencies"])
+                self.db_stat.append(mod_database['mod' + str(i)]['active'])
+
+        def delitem(self, index):
+            self.database.pop('mod' + str(index))
+            self.refreshdb()
+
 
     def loaddatabase():
         global mod_database
@@ -269,6 +297,10 @@ try:
         for index, data in mod_database.items():
             new_db['mod' + str(len(new_db))] = data
         mod_database = new_db
+        db_name = []
+        db_filename = []
+        db_stat = []
+        db_dependencies = []
 
         for i in range(len(mod_database)):
             db_name.append(mod_database['mod' + str(i)]["name"])
@@ -298,7 +330,6 @@ try:
     print('Type "help" for command usages')
 
     # TODO: diff ver compact
-    # TODO: new command format
 
     while True:
         commandd = input('[bs] ')
