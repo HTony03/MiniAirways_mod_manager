@@ -198,7 +198,7 @@ try:
         if mod_database['mod' + str(index)]['dependencies']:
             for i in mod_database['mod' + str(index)]['dependencies']:
                 if i['file'] in db_filename:
-                    if db_stat[db_filename.index(i['name'])] != "True":
+                    if db_stat[db_filename.index(i['file'])] != "True":
                         print("the dependence mod:%s is not activated." % i['name'])
                         passtest = False
                 else:
@@ -301,13 +301,29 @@ try:
     # TODO: new command format
 
     while True:
-        command = input('[bs] ')
+        commandd = input('[bs] ')
+        commandlist = commandd.split(' ')
+        command = commandlist[0]
         lj.info('user choice:' + command)
         if command == 'addmod':
-            route = input('input the path of your downloaded mod zip file location:')
-            addmod(route)
+            if len(commandlist) == 1:
+                route = input('input the path of your downloaded mod zip file location:')
+                addmod(route)
+            else:
+                addmod(commandd[1])
         elif command == 'disablemod':
+            p = False
+            if len(commandlist) > 1:
+                try:
+                    indexx = int(commandlist[1])
+                    if 0 <= indexx < len(mod_database):
+                        p = True
+                        pass
+                except ValueError:
+                    print("invaid index")
             while True:
+                if p:
+                    break
                 try:
                     indexx = int(input("mod index:"))
                     if 0 <= indexx < len(mod_database):
@@ -321,7 +337,18 @@ try:
             else:
                 disablemod(indexx)
         elif command == 'enablemod':
+            p = False
+            if len(commandlist) > 1:
+                try:
+                    indexx = int(commandlist[1])
+                    if 0 <= indexx < len(mod_database):
+                        p = True
+                        pass
+                except ValueError:
+                    print("invaid index")
             while True:
+                if p:
+                    break
                 try:
                     indexx = int(input("mod index:"))
                     if 0 <= indexx < len(mod_database):
@@ -335,7 +362,18 @@ try:
             else:
                 enablemod(indexx)
         elif command == 'delmod':
+            p = False
+            if len(commandlist) > 1:
+                try:
+                    indexx = int(commandlist[1])
+                    if 0 <= indexx < len(mod_database):
+                        p = True
+                        pass
+                except ValueError:
+                    print("invaid index")
             while True:
+                if p:
+                    break
                 try:
                     indexx = int(input("mod index:"))
                     if 0 <= indexx < len(mod_database):
@@ -402,6 +440,9 @@ will automantically delete the nonexist mod data
 loadfromdisc:
 load mods from disc
 will automantically add mods that are not in database
+
+rungame:
+run the game!
 
 help:
 show all the usages of the commands
