@@ -20,35 +20,10 @@ db_dependencies = []
 db_stat = []
 basemoddic = r'.\BepInEx\plugins\\'
 ver = '0.0.2'
+commander = ['[bs] ','>>> ']
+command_sel = 1
 
 try:
-    class Database:
-        def __init__(self):
-            self.database = {}
-            self.db_name = []
-            self.db_filename = []
-            self.db_dependencies = []
-            self.db_stat = []
-
-        def refreshdb(self):
-            new_db = {}
-            for index, data in self.database.items():
-                new_db['mod' + str(len(new_db))] = data
-            self.database = new_db
-
-            self.db_name = []
-            self.db_filename = []
-            self.db_dependencies = []
-            self.db_stat = []
-            for i in range(len(self.database)):
-                self.db_name.append(mod_database['mod' + str(i)]["name"])
-                self.db_filename.append(mod_database['mod' + str(i)]["file_name"])
-                self.db_dependencies.append(mod_database['mod' + str(i)]["dependencies"])
-                self.db_stat.append(mod_database['mod' + str(i)]['active'])
-
-        def delitem(self, index):
-            self.database.pop('mod' + str(index))
-            self.refreshdb()
 
 
     def loaddatabase():
@@ -308,6 +283,39 @@ try:
             db_dependencies.append(mod_database['mod' + str(i)]["dependencies"])
             db_stat.append(mod_database['mod' + str(i)]['active'])
 
+    def process_inf(json):
+        raw_data = json.loads(json)
+        name = raw_data['name'] if 'name' in raw_data else None
+        ver = raw_data['version'] if 'version' in raw_data else "None"
+        desc = raw_data['desc'] if 'desc' in raw_data else "None"
+        file_name = raw_data['file_name']
+        if not name:
+            base, ext = os.path.splitext(file_name)
+            name = base
+        dependencies = raw_data['dependencies'] if 'dependencies' in raw_data else 0
+        return {
+            "name":name,
+            "version":ver,
+            "desc":desc,
+            "file_name":file_name,
+            "dependencies":dependencies
+        }
+
+    def process_vernum(vernum):
+        if vernum[0] == 'V' or vernum[0] == 'v':
+            return vernum[1:].split('.')
+        else:
+            return vernum.split('.')
+
+    def mod_dependencies(operation):
+        if operation:
+            # check exist & extract
+            pass
+        else:
+            # check not exist & delall
+            pass
+
+
 
     # Main
 
@@ -321,18 +329,20 @@ try:
     lj.register_def(showdesc)
     lj.register_def(resort_db)
 
-    loaddatabase()
-    refresh_exist_mods()
-    refresh_mod_status()
-    resort_db()
+    # loaddatabase()
+    # refresh_exist_mods()
+    # refresh_mod_status()
+    # resort_db()
 
     print('Mini Airways Mod manager %s on %s' % (ver, platform.system()))
     print('Type "help" for command usages')
 
     # TODO: diff ver compact
+    # TODO: check folder exist
+    # TODO: json lang(?
 
     while True:
-        commandd = input('[bs] ')
+        commandd = input(commander[command_sel])
         commandlist = commandd.split(' ')
         command = commandlist[0]
         lj.info('user choice:' + command)
@@ -418,8 +428,8 @@ try:
             resort_db()
             for i in range(len(mod_database)):
                 print('mod name:%s' % mod_database['mod' + str(i)]['name'])
-                if 'ver' in mod_database['mod' + str(i)]:
-                    print('mod version:%s' % mod_database['mod' + str(i)]['ver'])
+                if 'version' in mod_database['mod' + str(i)]:
+                    print('mod version:%s' % mod_database['mod' + str(i)]['version'])
                 print('mod index:%s' % i)
                 print('mod description:%s' % mod_database['mod' + str(i)]['desc'])
                 print('mod dependences:')

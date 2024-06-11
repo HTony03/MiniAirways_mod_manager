@@ -1,14 +1,16 @@
 {
   "name": "Mod name",
-  "ver": "v0.0.1",
+  "version": "v0.0.1",
   "desc": "Mod descriptions",
   "file_name": "<mod_file_name>.dll",
-  "dependencies": 0
+  "dependencies": 0,
+  "licence(optional)": "MIT",
+  "authors(optional)": "Joe"
 }
 
 {
   "name": "Mod name",
-  "ver": "v0.0.1",
+  "version": "0.0.1",
   "desc": "Mod descriptions",
   "file_name": "<mod_file_name>.dll",
   "dependencies": [
@@ -17,5 +19,7 @@
       "file": "<dependent_mod_file_name>.dll",
       "ver": "v0.0.1"
     }
-  ]
+  ],
+  "licence(optional)": "MIT",
+  "authors(optional)": "Joe"
 }
