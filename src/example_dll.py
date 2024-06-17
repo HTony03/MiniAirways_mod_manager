@@ -10,21 +10,45 @@ import pythonnet
 #pythonnet.get_runtime_info()
 #clr = pythonnet.load('coreclr')
 import clr
-module = clr.AddReference("VerticalLevel")
+module = clr.AddReference("test")
 print(module.GetName())
 print(type(module.GetName()))
 print(module.FullName)
-#help(clr.AddReference("VerticalLevel"))
+print(module.GetModule)
+help(clr.AddReference("VerticalLevel"))
 
-for filename in os.listdir(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways Playtest\MiniAirways_mod_manager\src'):
-    if os.path.isfile(os.path.join(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways Playtest\MiniAirways_mod_manager\src', filename)):
-
+# for filename in os.listdir(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways Playtest\MiniAirways_mod_manager\src'):
+#     if os.path.isfile(os.path.join(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways Playtest\MiniAirways_mod_manager\src', filename)):
+for filename in os.listdir(r'E:\PycharmProjects\MiniAirways_mod_manager\src'):
+    if os.path.isfile(os.path.join(r'E:\PycharmProjects\MiniAirways_mod_manager\src',filename)):
         base, ext = os.path.splitext(filename)
 
         while ext and base.count('.') > 0:
             base, new_ext = os.path.splitext(base)
             ext = new_ext + ext
 
+        disabled = False
+        if ext == '.dll.disabled':
+            disabled = True
+            os.rename(os.path.join(r'E:\PycharmProjects\MiniAirways_mod_manager\src',filename),os.path.join(r'E:\PycharmProjects\MiniAirways_mod_manager\src',base + '.dll'))
+            print(os.path.join(r'E:\PycharmProjects\MiniAirways_mod_manager\src',base+'.dll'))
+        # bug
         if ext == '.dll':
             module = clr.AddReference(base)
-            print(module.ToString().split(', ')[0])
+            # print(module.ToString().split(', ')[0])
+            a = {}
+            for i in module.ToString().split(', '):
+                if '=' in i:
+                    a[i.split('=')[0]] = i.split('=')[1]
+                else:
+                    a['name'] = i
+            a['filename'] = base+'.dll'
+            a.pop('Culture')
+            a.pop('PublicKeyToken')
+            if disabled:
+                a['active'] = 'False'
+            else:
+                a['active'] = 'True'
+            print(a)
+            if disabled:
+                os.rename(os.path.join(r'E:\PycharmProjects\MiniAirways_mod_manager\src',base + '.dll'),os.path.join(r'E:\PycharmProjects\MiniAirways_mod_manager\src',filename))
