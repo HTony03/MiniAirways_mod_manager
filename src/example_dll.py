@@ -10,7 +10,7 @@ import pythonnet
 #pythonnet.get_runtime_info()
 #clr = pythonnet.load('coreclr')
 import clr
-module = clr.AddReference("test")
+module = clr.AddReference("aaa")
 print(module.GetName())
 print(type(module.GetName()))
 print(module.FullName)
@@ -27,15 +27,14 @@ for filename in os.listdir(r'E:\PycharmProjects\MiniAirways_mod_manager\src'):
             base, new_ext = os.path.splitext(base)
             ext = new_ext + ext
 
+        # print(ext)
         disabled = False
         if ext == '.dll.disabled':
             disabled = True
             os.rename(os.path.join(r'E:\PycharmProjects\MiniAirways_mod_manager\src',filename),os.path.join(r'E:\PycharmProjects\MiniAirways_mod_manager\src',base + '.dll'))
-            print(os.path.join(r'E:\PycharmProjects\MiniAirways_mod_manager\src',base+'.dll'))
-        # bug
+            ext = '.dll'
         if ext == '.dll':
             module = clr.AddReference(base)
-            # print(module.ToString().split(', ')[0])
             a = {}
             for i in module.ToString().split(', '):
                 if '=' in i:
@@ -49,6 +48,6 @@ for filename in os.listdir(r'E:\PycharmProjects\MiniAirways_mod_manager\src'):
                 a['active'] = 'False'
             else:
                 a['active'] = 'True'
-            print(a)
-            if disabled:
-                os.rename(os.path.join(r'E:\PycharmProjects\MiniAirways_mod_manager\src',base + '.dll'),os.path.join(r'E:\PycharmProjects\MiniAirways_mod_manager\src',filename))
+            # print(a)
+        if disabled:
+            os.rename(os.path.join(r'E:\PycharmProjects\MiniAirways_mod_manager\src',base + '.dll'),os.path.join(r'E:\PycharmProjects\MiniAirways_mod_manager\src',filename))

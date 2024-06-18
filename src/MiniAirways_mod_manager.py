@@ -5,6 +5,7 @@ import platform
 
 import loggerjava as lj
 from json import JSONDecodeError
+import clr
 
 if __name__ == "__main__":
     pass
@@ -315,7 +316,39 @@ try:
             # check not exist & delall
             pass
 
-
+    def new_refreshmod():
+        for filename in os.listdir(basemoddic):
+            if os.path.isfile(os.path.join(basemoddic,filename)):
+                base, ext = os.path.splitext(filename)
+        
+                while ext and base.count('.') > 0:
+                    base, new_ext = os.path.splitext(base)
+                    ext = new_ext + ext
+        
+                # print(ext)
+                disabled = False
+                if ext == '.dll.disabled':
+                    disabled = True
+                    os.rename(os.path.join(basemoddic,filename),os.path.join(basemoddic,base + '.dll'))
+                    ext = '.dll'
+                if ext == '.dll':
+                    module = clr.AddReference(base)
+                    a = {}
+                    for i in module.ToString().split(', '):
+                        if '=' in i:
+                            a[i.split('=')[0]] = i.split('=')[1]
+                        else:
+                            a['name'] = i
+                    a['filename'] = base+'.dll'
+                    a.pop('Culture')
+                    a.pop('PublicKeyToken')
+                    if disabled:
+                        a['active'] = 'False'
+                    else:
+                        a['active'] = 'True'
+                    # print(a)
+                if disabled:
+                    os.rename(os.path.join(basemoddic,base + '.dll'),os.path.join(basemoddic,filename))
 
     # Main
 
