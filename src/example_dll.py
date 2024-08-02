@@ -15,9 +15,9 @@ print(module.GetName())
 print(type(module.GetName()))
 print(module.FullName)
 #help(clr.AddReference("VerticalLevel"))
-
-for filename in os.listdir(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways Playtest\MiniAirways_mod_manager\src'):
-    if os.path.isfile(os.path.join(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways Playtest\MiniAirways_mod_manager\src', filename)):
+basefolder = r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways Playtest\MiniAirways_mod_manager\src'
+for filename in os.listdir(basefolder):
+    if os.path.isfile(os.path.join(basefolder, filename)):
 
         base, ext = os.path.splitext(filename)
 
@@ -28,3 +28,8 @@ for filename in os.listdir(r'D:\Program Files (x86)\Steam\steamapps\common\Mini 
         if ext == '.dll':
             module = clr.AddReference(base)
             print(module.ToString().split(', ')[0])
+        if ext == '.dll.disabled':
+            os.rename(basefolder+'\\'+filename,basefolder+'\\'+base+'.dll')
+            module = clr.AddReference(base)
+            print(module.ToString().split(', ')[0])
+            os.rename(basefolder+'\\'+base+'.dll',basefolder+'\\'+filename)
