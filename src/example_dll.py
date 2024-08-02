@@ -25,6 +25,12 @@ for filename in os.listdir(basefolder):
             base, new_ext = os.path.splitext(base)
             ext = new_ext + ext
 
+        # print(ext)
+        disabled = False
+        if ext == '.dll.disabled':
+            disabled = True
+            os.rename(os.path.join(r'E:\PycharmProjects\MiniAirways_mod_manager\src',filename),os.path.join(r'E:\PycharmProjects\MiniAirways_mod_manager\src',base + '.dll'))
+            ext = '.dll'
         if ext == '.dll':
             module = clr.AddReference(base)
             print(module.ToString().split(', ')[0])
