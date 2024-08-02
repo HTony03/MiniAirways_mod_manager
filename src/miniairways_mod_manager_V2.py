@@ -23,17 +23,12 @@ lj.clearcurrentlog()
 lj.debug('current loggerjava ver:' + lj.ver, pos='test_loggerjava')
 
 mod_database = {}
-db_name = []
-db_filename = []
-db_dependencies = []
-db_stat = []
 basemoddic = r'.\BepInEx\plugins\\'
-ver = '0.0.2'
+ver = '0.1.1'
 commander = ['[bs] ', '>>> ']
 command_sel = 1
 sys.path.extend(r'.//ReferencedAssemblies')
 last_refresh = time.time()
-
 import clr
 
 try:
