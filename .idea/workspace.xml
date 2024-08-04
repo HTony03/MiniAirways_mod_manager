@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1f60b777-8def-4b2e-b993-c6b8b13ddd85" name="更改" comment="final!">
+      <change afterPath="$PROJECT_DIR$/src/ui-test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/miniairways_mod_manager_V2.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/miniairways_mod_manager_V2.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,11 +69,12 @@
   "keyToString": {
     "Python.MiniAirways_mod_manager.executor": "Run",
     "Python.miniairways_mod_manager_V2.executor": "Run",
+    "Python.ui-test.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "D:/Program Files (x86)/Steam/steamapps/common/Mini Airways Playtest/MiniAirways_mod_manager/copydb.cmd",
-    "settings.editor.selected.configurable": "pyconsole"
+    "last_opened_file_path": "D:/Program Files/Python311/Scripts/pyside6-uic.exe",
+    "settings.editor.selected.configurable": "preferences.externalTools"
   }
 }]]></component>
   <component name="PyConsoleOptionsProvider">
@@ -93,7 +94,12 @@
     <option name="myCommandQueueEnabled" value="true" />
     <option name="myCodeCompletionOption" value="Runtime" />
   </component>
-  <component name="RunManager" selected="Python.miniairways_mod_manager_V2">
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Program Files (x86)\Steam\steamapps\common\Mini Airways Playtest\MiniAirways_mod_manager\src" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.ui-test">
     <configuration name="MiniAirways_mod_manager" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true" show_console_on_std_out="true">
       <selectedOptions>
         <option name="environmentVariables" visible="false" />
@@ -102,6 +108,9 @@
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="SDK_NAME" value="Python 3.11" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/.." />
@@ -142,8 +151,31 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="ui-test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="MiniAirways_mod_manager" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/ui-test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.ui-test" />
         <item itemvalue="Python.miniairways_mod_manager_V2" />
       </list>
     </recent_temporary>
