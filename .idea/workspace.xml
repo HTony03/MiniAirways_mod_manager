@@ -4,38 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1f60b777-8def-4b2e-b993-c6b8b13ddd85" name="更改" comment="Developed Ui">
+    <list default="true" id="1f60b777-8def-4b2e-b993-c6b8b13ddd85" name="更改" comment="Sorted project &amp; small feature updates &amp; better log compact">
+      <change afterPath="$PROJECT_DIR$/src/BepInEx/aaa.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/UI/Main_zh_CN.qm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/UI/Manager_mod_operation.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/MiniAirways_mod_manager.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/MiniAirways_mod_manager.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/_2024_8_2_11_07____.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/_2024_8_3_4_40____.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Main_test.qm" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI/Main_test.qm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Main_test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI/Main_test.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MiniAirways_mod_manager-v2.zip.tmp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MiniAirways_mod_manager.zip" beforeDir="false" afterPath="$PROJECT_DIR$/Releases/V1/MiniAirways_mod_manager.zip" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MiniAirways_mod_manager_database.json" beforeDir="false" afterPath="$PROJECT_DIR$/Manager_V1/MiniAirways_mod_manager_database.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/checkacceptreject.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/checkacceptreject.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI/checkacceptreject.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dialog.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI/dialog.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dialog_mod_operation.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/example_meta-inf.json" beforeDir="false" afterPath="$PROJECT_DIR$/Manager_V1/example_meta-inf.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/MiniAirways_Mod_manager.exe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/BepInEx/plugins/RealAirplaneTag.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/BepInEx/plugins/RealAirplaneTag_TEST.dll.disabled" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/BepInEx/plugins/TimeScaler.dll.disabled" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GoodlifeShortcut.dll" beforeDir="false" afterPath="$PROJECT_DIR$/src/BepInEx/GoodlifeShortcut.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI/Main_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main_test.ui" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI/Main_test.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MiniAirways_mod_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/Manager_V1/src/MiniAirways_mod_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/RealAirplaneTag.dll" beforeDir="false" afterPath="$PROJECT_DIR$/src/BepInEx/RealAirplaneTag.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/RealAirplaneTag_TEST.dll" beforeDir="false" afterPath="$PROJECT_DIR$/src/BepInEx/RealAirplaneTag_TEST.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/TimeScaler.dll" beforeDir="false" afterPath="$PROJECT_DIR$/src/BepInEx/TimeScaler.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/TimeScaler.dll.disabled" beforeDir="false" afterPath="$PROJECT_DIR$/src/BepInEx/TimeScaler.dll.disabled" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/VerticalLevel.dll" beforeDir="false" afterPath="$PROJECT_DIR$/src/BepInEx/VerticalLevel.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/aaa.dll" beforeDir="false" afterPath="$PROJECT_DIR$/src/BepInEx/aaa.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/checkacceptreject.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI/checkacceptreject.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/checkacceptreject.ui" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI/checkacceptreject.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/dialog_mod_operation.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI/dialog_mod_operation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/dialog_mod_operation.ui" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI/dialog_mod_operation.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/new_format_compact.py" beforeDir="false" afterPath="$PROJECT_DIR$/Manager_V1/src/new_format_compact.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/Main_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/Main_test.qm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/Main_test.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/Main_test.ui" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI/Manager_Main.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/checkacceptreject.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/checkacceptreject.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/checkacceptreject.ui" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI/Manager_check_yn.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/dialog.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/dialog_mod_operation.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/dialog_mod_operation.ui" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ui-test.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui-test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -95,20 +82,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.MiniAirways_mod_manager.executor&quot;: &quot;Run&quot;,
-    &quot;Python.example_dll.executor&quot;: &quot;Run&quot;,
-    &quot;Python.miniairways_mod_manager_V2.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test111.executor&quot;: &quot;Run&quot;,
-    &quot;Python.ui-test.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Program Files/Python311/Scripts/pyside6-uic.exe&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.externalTools&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.MiniAirways_mod_manager.executor": "Run",
+    "Python.example_dll.executor": "Run",
+    "Python.miniairways_mod_manager_V2.executor": "Run",
+    "Python.test111.executor": "Run",
+    "Python.ui-test.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "D:/Program Files (x86)/Steam/steamapps/common/Mini Airways Playtest/MiniAirways_mod_manager/src/UI",
+    "settings.editor.selected.configurable": "preferences.externalTools"
   }
-}</component>
+}]]></component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings module-name="MiniAirways_mod_manager" sdk-home="$PROJECT_DIR$/../../../../../../Program Files/Python311/python.exe">
@@ -127,6 +114,9 @@
     <option name="myCodeCompletionOption" value="Runtime" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Program Files (x86)\Steam\steamapps\common\Mini Airways Playtest\MiniAirways_mod_manager\src\UI" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Program Files (x86)\Steam\steamapps\common\Mini Airways Playtest\MiniAirways_mod_manager\Manager_V1\src" />
       <recent name="D:\Program Files (x86)\Steam\steamapps\common\Mini Airways Playtest\MiniAirways_mod_manager\Releases\V2" />
@@ -311,7 +301,15 @@
       <option name="project" value="LOCAL" />
       <updated>1722763058597</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Sorted project &amp; small feature updates &amp; better log compact">
+      <option name="closed" value="true" />
+      <created>1722777906860</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1722777906860</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -343,7 +341,8 @@
     <MESSAGE value="Test" />
     <MESSAGE value="final!" />
     <MESSAGE value="Developed Ui" />
-    <option name="LAST_COMMIT_MESSAGE" value="Developed Ui" />
+    <MESSAGE value="Sorted project &amp; small feature updates &amp; better log compact" />
+    <option name="LAST_COMMIT_MESSAGE" value="Sorted project &amp; small feature updates &amp; better log compact" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -7,9 +7,9 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QWidget, QCheckBox, QHBoxLayout, QMessageBox, QFileDialog
 
-from src.UI.Main_test import Ui_MainWindow
-from src.UI.checkacceptreject import Ui_Dialog as Ui_Dialog_2
-from src.UI.dialog_mod_operation import Ui_Dialog
+from src.UI.Manager_Main import Ui_MainWindow
+from src.UI.Manager_check_yn import Ui_Dialog as Dialog_check_yn
+from src.UI.Manager_mod_operation import Ui_Dialog as Dialog_mod_operation
 
 if __name__ == '__main__':
     pass
@@ -45,6 +45,7 @@ lj.clearcurrentlog()
 lj.debug('current loggerjava ver:' + lj.ver, pos='test_loggerjava')
 
 mod_database = {}
+in_lang = {}
 basemoddic = r'.\BepInEx\plugins\\'
 last_refresh = time.time()
 
@@ -306,7 +307,8 @@ try:
             self.ui.tableWidget.setColumnWidth(2, 50)
             self.ui.tableWidget.setColumnWidth(3, 100)
 
-            self.ui.tableWidget.setHorizontalHeaderLabels(['mod', '版本', '状态', '操作'])
+            self.ui.tableWidget.setHorizontalHeaderLabels([in_lang['label.0'], in_lang['label.1'],
+                                                           in_lang['label.2'], in_lang['label.3']])
             for i, row in enumerate(data):
                 # self.ui.tableWidget.setItem(i, 0, QtWidgets.QTableWidgetItem(str(i+1)))
                 self.ui.tableWidget.setItem(i, 0, QtWidgets.QTableWidgetItem(data[row]['name']))
@@ -330,7 +332,7 @@ try:
                 layout.setContentsMargins(0, 0, 0, 0)
                 widget.setLayout(layout)
 
-                button = QtWidgets.QPushButton('操作')
+                button = QtWidgets.QPushButton(in_lang['Operation.operation'])
                 button.clicked.connect(
                     lambda checked, row=i: Op_OperationUi(row))
 
@@ -353,10 +355,10 @@ try:
             if file_dialog.exec_():
                 selected_files = file_dialog.selectedFiles()
                 # print(selected_files)
-            lj.info('adding a mod with route:%s'%selected_files,pos='Ui_MainUI')
-            os.system('copy "%s" "%s"' % (selected_files[0], os.path.join(basemoddic ,
-                                                                        os.path.basename(selected_files[0]))))
-            self.refresh_data()
+                lj.info('adding a mod with route:%s'%selected_files,pos='Ui_MainUI')
+                os.system('copy "%s" "%s"' % (selected_files[0], os.path.join(basemoddic ,
+                                                                            os.path.basename(selected_files[0]))))
+                self.refresh_data()
 
 
         def addFile_zip(self):
@@ -382,21 +384,25 @@ try:
                 disablemod(index)
 
 
+
     class OperationUi(QtWidgets.QDialog):
         def __init__(self, index):
             super().__init__()
             lj.info('showing OperationUi with index %s'%index,pos='Ui_OperationUi')
-            self.ui = Ui_Dialog()
+            self.ui = Dialog_mod_operation()
             self.ui.setupUi(self)
             self.ui.pushButton_del.clicked.connect(
                 lambda checked: self.handle(index))
+            # self.ui.pushButton_endisable.clicked.connect(
+            #     lambda check:
+            # )
             self.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
 
             self.show()
 
         def handle(self, index):
             self.close()
-            Op_ConfirmUi(index, '确认删除?', {'confirm':'delmod(self.index)'})
+            Op_ConfirmUi(index, in_lang['Operation.Confirmdel'], {'confirm':'delmod(self.index)'})
 
 
     class ConfirmUi(QtWidgets.QDialog):
@@ -405,7 +411,7 @@ try:
             lj.info('showing ConfirmUi with keys: (%s,%s,%s)' % (index,text,operation), pos='Ui_ConfirmUi')
             self.operation = operation
             self.index = index
-            self.ui = Ui_Dialog_2()
+            self.ui = Dialog_check_yn()
             self.ui.setupUi(self)
             self.ui.textBrowser.setText(text)
             self.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
@@ -433,17 +439,41 @@ try:
         Confirmwindow.exec()
 
 
-    def load_translator(app, locale):
-        translator = QTranslator(app)
+    def load_translator():
+        global translator,in_lang
 
         # Load the appropriate .qm file based on the locale
-        if locale.language() == QLocale.Chinese:
-            translator.load("translations/chinese.qm")
-        elif locale.language() == QLocale.English:
-            translator.load("translations/english.qm")
+        if QLocale.Language() == QLocale.Language.Chinese:
+            translator.load(r'.\Ui\Main_zh_CN.qm')
+            in_lang = {
+                'Operation.Confirmdel': '确认删除?',
+                'Operation.operation': '操作',
+                'label.0': 'Mod',
+                'label.1': '版本',
+                'label.2': '状态',
+                'label.3': '操作'
+            }
+        # elif QLocale.Language() == QLocale.Language.AnyLanguage:
+        #     translator.load(r'.\Ui\Main_zh_CN.qm')
+        elif QLocale.Language() == QLocale.Language.English:
+            in_lang = {
+                'Operation.Confirmdel': 'Confirm deletion?',
+                'Operation.operation': 'Operation',
+                'label.0': 'Mod',
+                'label.1': 'Version',
+                'label.2': 'Status',
+                'label.3': 'Operation'
+            }
         else:
             # Default to English if the locale is not supported
-            translator.load("translations/english.qm")
+            in_lang = {
+                'Operation.Confirmdel': 'Confirm deletion?',
+                'Operation.operation': 'Operation',
+                'label.0': 'Mod',
+                'label.1': 'Version',
+                'label.2': 'Status',
+                'label.3': 'Operation'
+            }
 
     lj.register_def(ModMannager_MainUI)
     lj.register_def(ConfirmUi)
@@ -458,7 +488,13 @@ try:
     if __name__ == '__main__':
         app = QApplication(sys.argv)
         translator = QTranslator(app)
-        translator.load("Main_test.qm")
+        print(QLocale.system().Language)
+        # translator.load(r'.\Ui\Main_zh_CN.qm')
+        # # translator.load(r'.\Ui\Manager_Main.qm')
+        # print(translator.filePath())
+        # print(translator.language())
+        # print(translator.translate('Dialog','Dialog'))
+        load_translator()
         app.installTranslator(translator)
         app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt6())
         Mainwindow = ModMannager_MainUI()
@@ -467,10 +503,9 @@ except Exception as E:
     lj.warn(lj.handler(E), pos='exechandler', showinconsole=True)
     lj.info('db:\n' + json.dumps(mod_database, ensure_ascii=True, indent=4, sort_keys=False), pos='exechandler')
     lj.info('ver: %s os: %s' % (ver, platform.system()), pos='exechandler')
-    app = QApplication([])
     msg_box = QMessageBox()
     msg_box.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
-    msg_box.setText("""please upload the latest log after the whole program is exited(after the console is closed).')
+    msg_box.setText("""please upload the latest log after the whole program is exited\n(after the window is closed).')
 the log is in 'MiniAirways_mod_manager_log' folder.""")
     msg_box.exec()
     sys.exit()

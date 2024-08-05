@@ -1,9 +1,0 @@
-<changelist name="在进行更新之前于_2024_8_2_下午11_07_取消提交了更改_[更改]" date="1722611279004" recycled="false" toDelete="true">
-  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/在进行更新之前于_2024_8_2_下午11_07_取消提交了更改_[更改]/shelved.patch" />
-  <option name="DESCRIPTION" value="在进行更新之前于 2024/8/2 下午11:07 取消提交了更改 [更改]" />
-  <binary>
-    <option name="BEFORE_PATH" value="src/TimeScaler.dll" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
-  </binary>
-</changelist>
