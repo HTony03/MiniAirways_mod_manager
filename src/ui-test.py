@@ -11,6 +11,9 @@ from src.UI.Manager_Main import Ui_MainWindow
 from src.UI.Manager_check_yn import Ui_Dialog as Dialog_check_yn
 from src.UI.Manager_mod_operation import Ui_Dialog as Dialog_mod_operation
 
+import zipfile
+import shutil
+
 if __name__ == '__main__':
     pass
 
@@ -22,7 +25,6 @@ import loggerjava as lj
 
 ver = '0.2.5'
 
-
 # BepInEx folder test
 if not os.path.exists('.\\BepInEx\\'):
     app = QApplication([])
@@ -31,8 +33,6 @@ if not os.path.exists('.\\BepInEx\\'):
     msg_box.setText("""the mod manager is currently not in the Mini Airways Folder
     check your location and open the manager!""")
     msg_box.exec()
-    # print('the mod manager is currently not in the Mini Airways Folder')
-    # print('check your location and open the manager!')
     sys.exit()
 
 # init log
@@ -120,7 +120,6 @@ try:
                         name_db.append(filedata["File description"])
                         stat_db.append(1)
 
-
                 elif ext == '.dll.disabled':
                     changed_name = None
                     try:
@@ -178,25 +177,55 @@ try:
     def delmod(index):
         global mod_database
         filedir = mod_database['mod' + str(index)]['file_name']
-        dll_file_path = r'.\BepInEx\plugins\\' + filedir
+        dll_file_path = basemoddic + filedir
         if os.path.exists(dll_file_path):
             os.remove(dll_file_path)
+            mod_database.pop('mod' + str(index))
             lj.info(f"Mod file file %s has been deleted." % dll_file_path)
         elif os.path.exists(dll_file_path + ".disabled"):
             os.remove(dll_file_path + ".disabled")
+            mod_database.pop('mod' + str(index))
             lj.info(f"Mod file file %s.disabled has been deleted." % dll_file_path)
         else:
             lj.info(f"Mod file %s does not exist.\n" % dll_file_path +
                     f"removing the related mod data")
+            mod_database.pop('mod' + str(index))
         lj.info('deleting mod with index %s' % index)
         lj.info("deleted!")
         Mainwindow.refresh_data()
 
+
     # TODO: refresh to another thread(auto refresh)
     # TODO: performance improvements
+
     def enablemod(index):
-        # TODO: check whether have dumplicate mods enabled(先两个后多个compact)
         global mod_database
+        lj.info('try enabling mod index %s' % index)
+
+        name = mod_database['mod' + str(index)]['name']
+        ver = mod_database['mod' + str(index)]['ver']
+        dumplicate_index = []
+        dumplicate_ver = []
+        value = mod_database.values()
+        for i in range(len(mod_database)):
+            if list(value)[i]['name'] == name and i != index and list(value)[i]['active'] == 'True':
+                dumplicate_index.append(i)
+                dumplicate_ver.append(list(value)[i]['ver'])
+        if dumplicate_ver:
+            lj.warn('dumplicates!%s' % dumplicate_index)
+            if ver <= max(dumplicate_ver):
+                msg_box = QMessageBox()
+                msg_box.setWindowIcon(
+                    QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
+                msg_box.setText(in_lang['warn.dumplicate_mod_higher_ver'])
+                msg_box.exec()
+                Mainwindow.update_ui()
+                return
+
+            for d_index in dumplicate_index:
+                disablemod(d_index)
+                Mainwindow.update_ui()
+
         filedir = mod_database['mod' + str(index)]['file_name']
 
         if mod_database['mod' + str(index)]['active'] != "False":
@@ -215,6 +244,7 @@ try:
         os.rename(basemoddic + filedir + '.disabled', basemoddic + filedir)
         mod_database['mod' + str(index)]['active'] = "True"
         lj.info("changed mod " + mod_database['mod' + str(index)]['name'] + ' status to enabled')
+        Mainwindow.update_ui()
 
 
     def disablemod(index):
@@ -238,9 +268,12 @@ try:
         mod_database['mod' + str(index)]['active'] = "False"
         lj.info('disabling mod with index %s' % index)
         lj.info("changed mod " + mod_database['mod' + str(index)]['name'] + ' status to disabled')
+        Mainwindow.update_ui()
+
 
     def launchgame():
         os.popen(r'MiniAirways.exe')
+
 
     def openmodfolder():
         os.system('explorer ' + os.path.abspath(basemoddic))
@@ -263,15 +296,14 @@ try:
     class ModMannager_MainUI(QtWidgets.QMainWindow):
         def __init__(self):
             super().__init__()
-            global data
-            lj.info('showing MainUI',pos='Ui_MainUI')
-            data = mod_database
+            lj.info('showing MainUI', pos='Ui_MainUI')
 
             self.ui = Ui_MainWindow()
             self.ui.setupUi(self)
             self.ui.action_refresh.triggered.connect(self.refresh_data)
             self.ui.action_quit.triggered.connect(self.close)
             self.ui.action_add.triggered.connect(self.addFile)
+            self.ui.action_addwithzip.triggered.connect(self.addFile_zip)
             self.ui.action_modfolder.triggered.connect(openmodfolder)
             self.ui.action_launchgame.triggered.connect(launchgame)
             self.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
@@ -282,40 +314,34 @@ try:
 
         def refresh_data(self):
             # Call the outer function that refreshes the data
-            lj.info('refresh data called',pos='Ui_MainUI')
+            lj.info('refresh data called', pos='Ui_MainUI')
             reload_from_disc()
-            global data
-            data = mod_database
             # Update the UI accordingly
             self.update_ui()
 
         def update_ui(self):
-            lj.info('refreshing ui',pos='Ui_MainUI')
-            global data
-            data = mod_database
+            lj.info('refreshing ui', pos='Ui_MainUI')
             # Code to update the UI based on the refreshed data
             self.ui.tableWidget.setRowCount(0)
 
-            self.ui.tableWidget.setRowCount(len(data))  # Set the number of rows
+            self.ui.tableWidget.setRowCount(len(mod_database))  # Set the number of rows
             self.ui.tableWidget.setColumnCount(4)  # Set the number of columns
             # self.ui.tableWidget.setSortingEnabled(True)
             namedb = []
-            for i in range(len(data)):
-                namedb.append(data['mod' + str(i)]['name'])
-            self.ui.tableWidget.setColumnWidth(0, max(map(lambda x: len(x), namedb + ['name'])) * 8)
+            for i in range(len(mod_database)):
+                namedb.append(mod_database['mod' + str(i)]['name'])
+            self.ui.tableWidget.setColumnWidth(0, max(max(map(lambda x: len(x), namedb + ['name'])), 24) * 7)
             self.ui.tableWidget.setColumnWidth(1, 70)
             self.ui.tableWidget.setColumnWidth(2, 50)
             self.ui.tableWidget.setColumnWidth(3, 100)
 
             self.ui.tableWidget.setHorizontalHeaderLabels([in_lang['label.0'], in_lang['label.1'],
                                                            in_lang['label.2'], in_lang['label.3']])
-            for i, row in enumerate(data):
-                # self.ui.tableWidget.setItem(i, 0, QtWidgets.QTableWidgetItem(str(i+1)))
-                self.ui.tableWidget.setItem(i, 0, QtWidgets.QTableWidgetItem(data[row]['name']))
-                self.ui.tableWidget.setItem(i, 1, QtWidgets.QTableWidgetItem(data[row]['ver']))
-                # self.ui.tableWidget.setItem(i, 2, QtWidgets.QTableWidgetItem(data[row]['active']))
+            for i, row in enumerate(mod_database):
+                self.ui.tableWidget.setItem(i, 0, QtWidgets.QTableWidgetItem(mod_database[row]['name']))
+                self.ui.tableWidget.setItem(i, 1, QtWidgets.QTableWidgetItem(mod_database[row]['ver']))
                 checkbox = QCheckBox(self)
-                if data[row]['active'] == 'True':
+                if mod_database[row]['active'] == 'True':
                     checkbox.setChecked(True)
                 else:
                     checkbox.setChecked(False)
@@ -355,11 +381,10 @@ try:
             if file_dialog.exec_():
                 selected_files = file_dialog.selectedFiles()
                 # print(selected_files)
-                lj.info('adding a mod with route:%s'%selected_files,pos='Ui_MainUI')
-                os.system('copy "%s" "%s"' % (selected_files[0], os.path.join(basemoddic ,
-                                                                            os.path.basename(selected_files[0]))))
+                lj.info('adding a mod with route:%s' % selected_files, pos='Ui_MainUI')
+                os.system('copy "%s" "%s"' % (selected_files[0], os.path.join(basemoddic,
+                                                                              os.path.basename(selected_files[0]))))
                 self.refresh_data()
-
 
         def addFile_zip(self):
             # Create a file dialog
@@ -373,7 +398,20 @@ try:
             # Show the file dialog and get the selected file(s)
             if file_dialog.exec_():
                 selected_files = file_dialog.selectedFiles()
-                print(selected_files)
+                with zipfile.ZipFile(selected_files[0], 'r', metadata_encoding='gbk') as zip_ref:
+                    for file_info in zip_ref.infolist():
+                        base, ext = os.path.splitext(file_info.filename)
+                        while ext and base.count('.') > 0:
+                            base, new_ext = os.path.splitext(base)
+                            ext = new_ext + ext
+                        print('%s  %s' % (base, ext))
+                        if ext == '.dll':
+                            zip_ref.extract(file_info, path=basemoddic)
+                            if len(base.split('/')) == 2:
+                                shutil.copy(os.path.join(basemoddic, base + ext),
+                                            os.path.join(basemoddic, base.split('/')[1] + ext))
+                                shutil.rmtree(os.path.join(basemoddic, base.split('/')[0]))
+
                 # os.system('copy "%s" %s' % (selected_files[0], basemoddic + os.path.basename(selected_files[0])))
                 self.refresh_data()
 
@@ -384,31 +422,38 @@ try:
                 disablemod(index)
 
 
-
     class OperationUi(QtWidgets.QDialog):
         def __init__(self, index):
             super().__init__()
-            lj.info('showing OperationUi with index %s'%index,pos='Ui_OperationUi')
+            lj.info('showing OperationUi with index %s' % index, pos='Ui_OperationUi')
             self.ui = Dialog_mod_operation()
             self.ui.setupUi(self)
             self.ui.pushButton_del.clicked.connect(
-                lambda checked: self.handle(index))
-            # self.ui.pushButton_endisable.clicked.connect(
-            #     lambda check:
-            # )
+                lambda checked: self.handle_del(index)
+            )
+            self.ui.pushButton_endisable.clicked.connect(
+                lambda checked: self.handle_stat_change(index)
+            )
             self.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
 
             self.show()
 
-        def handle(self, index):
+        def handle_del(self, index):
             self.close()
-            Op_ConfirmUi(index, in_lang['Operation.Confirmdel'], {'confirm':'delmod(self.index)'})
+            Op_ConfirmUi(index, in_lang['Operation.Confirmdel'], {'confirm': 'delmod(self.index)'})
+
+        def handle_stat_change(self, index):
+            self.close()
+            if mod_database['mod' + str(index)]['active'] == 'True':
+                disablemod(index)
+            else:
+                enablemod(index)
 
 
     class ConfirmUi(QtWidgets.QDialog):
         def __init__(self, index, text, operation):
             super().__init__()
-            lj.info('showing ConfirmUi with keys: (%s,%s,%s)' % (index,text,operation), pos='Ui_ConfirmUi')
+            lj.info('showing ConfirmUi with keys: (%s,%s,%s)' % (index, text, operation), pos='Ui_ConfirmUi')
             self.operation = operation
             self.index = index
             self.ui = Dialog_check_yn()
@@ -422,7 +467,6 @@ try:
             if 'confirm' in self.operation:
                 exec(self.operation['confirm'])
 
-
         def reject(self):
             self.done(0)
             if 'reject' in self.operation:
@@ -434,13 +478,13 @@ try:
         Operationwindow.exec()
 
 
-    def Op_ConfirmUi(index, text,operation):
-        Confirmwindow = ConfirmUi(index, text,operation)
+    def Op_ConfirmUi(index, text, operation):
+        Confirmwindow = ConfirmUi(index, text, operation)
         Confirmwindow.exec()
 
 
     def load_translator():
-        global translator,in_lang
+        global translator, in_lang
 
         # Load the appropriate .qm file based on the locale
         if QLocale.Language() == QLocale.Language.Chinese:
@@ -451,7 +495,8 @@ try:
                 'label.0': 'Mod',
                 'label.1': '版本',
                 'label.2': '状态',
-                'label.3': '操作'
+                'label.3': '操作',
+                'warn.dumplicate_mod_higher_ver': '更高或相同版本的同Mod处在启用状态！'
             }
         # elif QLocale.Language() == QLocale.Language.AnyLanguage:
         #     translator.load(r'.\Ui\Main_zh_CN.qm')
@@ -462,7 +507,9 @@ try:
                 'label.0': 'Mod',
                 'label.1': 'Version',
                 'label.2': 'Status',
-                'label.3': 'Operation'
+                'label.3': 'Operation',
+                'warn.dumplicate_mod_higher_ver': '''The same mod with a higher or same version is in active mode!
+                                Aborting'''
             }
         else:
             # Default to English if the locale is not supported
@@ -472,8 +519,11 @@ try:
                 'label.0': 'Mod',
                 'label.1': 'Version',
                 'label.2': 'Status',
-                'label.3': 'Operation'
+                'label.3': 'Operation',
+                'warn.dumplicate_mod_higher_ver': '''The same mod with a higher or same version is in active mode!
+                                Aborting'''
             }
+
 
     lj.register_def(ModMannager_MainUI)
     lj.register_def(ConfirmUi)
@@ -482,13 +532,12 @@ try:
     lj.register_def(Op_ConfirmUi)
     lj.register_def(load_translator)
 
-
     # TODO:add through zip files
 
     if __name__ == '__main__':
         app = QApplication(sys.argv)
         translator = QTranslator(app)
-        print(QLocale.system().Language)
+        # print(QLocale.system().Language)
         # translator.load(r'.\Ui\Main_zh_CN.qm')
         # # translator.load(r'.\Ui\Manager_Main.qm')
         # print(translator.filePath())
