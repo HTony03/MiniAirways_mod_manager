@@ -16,7 +16,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QAbstractButton, QApplication, QDialog, QDialogButtonBox,
-    QSizePolicy, QTextBrowser, QWidget)
+    QFrame, QSizePolicy, QTextBrowser, QWidget)
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -31,6 +31,18 @@ class Ui_Dialog(object):
         self.textBrowser = QTextBrowser(Dialog)
         self.textBrowser.setObjectName(u"textBrowser")
         self.textBrowser.setGeometry(QRect(10, 10, 141, 51))
+        self.textBrowser.setAcceptDrops(False)
+        self.textBrowser.setAutoFillBackground(False)
+        self.textBrowser.setLocale(QLocale(QLocale.English, QLocale.UnitedStates))
+        self.textBrowser.setFrameShape(QFrame.Shape.NoFrame)
+        self.textBrowser.setFrameShadow(QFrame.Shadow.Plain)
+        self.textBrowser.setLineWidth(0)
+        self.textBrowser.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.textBrowser.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.textBrowser.setTabChangesFocus(False)
+        self.textBrowser.setAcceptRichText(True)
+        self.textBrowser.setTextInteractionFlags(Qt.TextInteractionFlag.NoTextInteraction)
+        self.textBrowser.setOpenLinks(True)
 
         self.retranslateUi(Dialog)
         self.buttonBox.accepted.connect(Dialog.accept)

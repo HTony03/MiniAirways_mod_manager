@@ -13,44 +13,41 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QPushButton" name="pushButton_del">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>120</y>
-     <width>141</width>
-     <height>24</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Delete the Mod</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButton_endisable">
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
      <x>20</x>
      <y>40</y>
-     <width>141</width>
-     <height>21</height>
+     <width>143</width>
+     <height>86</height>
     </rect>
    </property>
-   <property name="text">
-    <string>Enanble/Disable the Mod</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButton_description">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>80</y>
-     <width>141</width>
-     <height>24</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Mod Description</string>
-   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <widget class="QPushButton" name="pushButton_endisable">
+      <property name="text">
+       <string>Enanble/Disable the Mod</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pushButton_description">
+      <property name="text">
+       <string>Mod Description</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pushButton_del">
+      <property name="text">
+       <string>Delete the Mod</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>
