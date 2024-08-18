@@ -16,32 +16,53 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QHeaderView, QMainWindow, QMenu,
-    QMenuBar, QSizePolicy, QTableWidget, QTableWidgetItem,
-    QWidget)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QHeaderView, QMainWindow,
+    QMenu, QMenuBar, QProgressBar, QSizePolicy,
+    QTableWidget, QTableWidgetItem, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(480, 640)
+        MainWindow.setLocale(QLocale(QLocale.English, QLocale.UnitedStates))
         self.action_add = QAction(MainWindow)
         self.action_add.setObjectName(u"action_add")
+        icon = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.DocumentOpen))
+        self.action_add.setIcon(icon)
         self.action_quit = QAction(MainWindow)
         self.action_quit.setObjectName(u"action_quit")
+        icon1 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.WindowClose))
+        self.action_quit.setIcon(icon1)
         self.action_refresh = QAction(MainWindow)
         self.action_refresh.setObjectName(u"action_refresh")
+        icon2 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.ViewRefresh))
+        self.action_refresh.setIcon(icon2)
         self.action_modfolder = QAction(MainWindow)
         self.action_modfolder.setObjectName(u"action_modfolder")
+        icon3 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.FolderOpen))
+        self.action_modfolder.setIcon(icon3)
         self.action_launchgame = QAction(MainWindow)
         self.action_launchgame.setObjectName(u"action_launchgame")
+        icon4 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.DocumentSend))
+        self.action_launchgame.setIcon(icon4)
         self.action_addwithzip = QAction(MainWindow)
         self.action_addwithzip.setObjectName(u"action_addwithzip")
+        self.action_addwithzip.setIcon(icon)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.tableWidget = QTableWidget(self.centralwidget)
         self.tableWidget.setObjectName(u"tableWidget")
         self.tableWidget.setGeometry(QRect(10, 10, 451, 581))
+        self.tableWidget.setLocale(QLocale(QLocale.English, QLocale.UnitedStates))
+        self.tableWidget.setProperty("showDropIndicator", False)
+        self.tableWidget.setDragDropMode(QAbstractItemView.DragDropMode.NoDragDrop)
+        self.tableWidget.setAlternatingRowColors(True)
+        self.tableWidget.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+        self.progressBar = QProgressBar(self.centralwidget)
+        self.progressBar.setObjectName(u"progressBar")
+        self.progressBar.setGeometry(QRect(355, 593, 118, 16))
+        self.progressBar.setValue(0)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menuBar = QMenuBar(MainWindow)
         self.menuBar.setObjectName(u"menuBar")

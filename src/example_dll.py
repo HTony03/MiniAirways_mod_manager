@@ -27,7 +27,7 @@ import json
 shell = Dispatch("Shell.Application")
 
 # enter directory where your file is located
-ns = shell.NameSpace(os.path.abspath('.\\'))
+ns = shell.NameSpace(os.path.abspath('.\\BepInEx\\'))
 print(ns)
 for i in ns.Items():
     # Check here with the specific filename
@@ -54,7 +54,8 @@ for i in ns.Items():
             _dict2[ns.GetDetailsOf(j, j)] = ns.GetDetailsOf(
                 i, j)
         print(json.dumps( _dict2, ensure_ascii=True, indent=4, sort_keys=False))
-print(_dict)
+        print(_dict)
+
 exit()
 basefolder = r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways Playtest\MiniAirways_mod_manager\src'
 for filename in os.listdir(basefolder):
