@@ -1,0 +1,3 @@
+PySide6>=6.7.2
+loggerjava>=0.8.0
+QDarkStyle>=3.2.3

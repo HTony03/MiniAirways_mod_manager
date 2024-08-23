@@ -157,7 +157,7 @@ try:
                     stat_db.append(0)
                     os.rename(changed_name, os.path.join(basemoddic, filename))
             index_now += 1
-            Mainwindow.update_ui(int(index_now / len(ns_list)))
+            Mainwindow.setprogressbarvalue(int(index_now / len(ns_list) * 100))
         last_refresh = time.time()
 
         # handle dumplicates
@@ -328,7 +328,7 @@ try:
             # Update the UI accordingly
             self.update_ui()
 
-        def update_ui(self, progress:int=100):
+        def update_ui(self):
             lj.info('refreshing ui', pos='Ui_MainUI')
             # Code to update the UI based on the refreshed data
             self.ui.tableWidget.setRowCount(0)
@@ -343,7 +343,6 @@ try:
             self.ui.tableWidget.setColumnWidth(1, 70)
             self.ui.tableWidget.setColumnWidth(2, 50)
             self.ui.tableWidget.setColumnWidth(3, 100)
-            self.ui.progressBar.setValue(progress)
 
             self.ui.tableWidget.setHorizontalHeaderLabels([in_lang['label.0'], in_lang['label.1'],
                                                            in_lang['label.2'], in_lang['label.3']])
@@ -433,7 +432,8 @@ try:
                 disablemod(index)
 
         def setprogressbarvalue(self, progress:int):
-            self.ui.progressBar.value(progress)
+            # self.ui.progressBar.value(progress)
+            self.ui.progressBar.setValue(progress)
 
 
 
