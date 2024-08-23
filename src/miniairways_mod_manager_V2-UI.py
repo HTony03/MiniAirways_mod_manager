@@ -23,7 +23,7 @@ import time
 
 import loggerjava as lj
 
-ver = '0.2.7'
+ver = '0.2.7.dev5'
 
 # BepInEx folder test
 if not os.path.exists('.\\BepInEx\\'):
@@ -379,37 +379,35 @@ try:
         def addFile(self):
 
             # Create a file dialog
-            file_dialog = QFileDialog()
-
-            # Set the file dialog to open in file selection mode
-            file_dialog.setFileMode(QFileDialog.ExistingFile)
-            file_dialog.setNameFilter("Application extension (*.dll)")
+            file_dialog = QtWidgets.QFileDialog()
             file_dialog.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
-            file_dialog.show()
-
+            file = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', filter="Application extension (*.dll)")
+            # print(file)
+            # return
             # Show the file dialog and get the selected file(s)
-            if file_dialog.exec_():
-                selected_files = file_dialog.selectedFiles()
-                # print(selected_files)
-                lj.info('adding a mod with route:%s' % selected_files, pos='Ui_MainUI')
-                os.system('copy "%s" "%s"' % (selected_files[0], os.path.join(basemoddic,
-                                                                              os.path.basename(selected_files[0]))))
+            if file[0]:
+                lj.info('adding a mod with route:%s' % file[0], pos='Ui_MainUI')
+                os.system('copy "%s" "%s"' % (file[0], os.path.join(basemoddic,
+                                                                              os.path.basename(file[0]))))
                 self.refresh_data()
 
         def addFile_zip(self):
             # Create a file dialog
-            file_dialog = QFileDialog()
-
-            # Set the file dialog to open in file selection mode
-            file_dialog.setFileMode(QFileDialog.ExistingFile)
-            file_dialog.setNameFilter("Zip file (*.zip)")
-            file_dialog.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
-            file_dialog.show()
+            # file_dialog = QFileDialog()
+            #
+            # # Set the file dialog to open in file selection mode
+            # file_dialog.setFileMode(QFileDialog.ExistingFile)
+            # file_dialog.setNameFilter("Zip file (*.zip)")
+            # file_dialog.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
+            # file_dialog.show()
+            file_dialog = QtWidgets.QFileDialog()
+            file_dialog.setWindowIcon(
+                QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
+            file = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Zip file', filter="Zip file (*.zip)")
 
             # Show the file dialog and get the selected file(s)
-            if file_dialog.exec_():
-                selected_files = file_dialog.selectedFiles()
-                with zipfile.ZipFile(selected_files[0], 'r', metadata_encoding='gbk') as zip_ref:
+            if file[0]:
+                with zipfile.ZipFile(file[0], 'r', metadata_encoding='gbk') as zip_ref:
                     for file_info in zip_ref.infolist():
                         base, ext = os.path.splitext(file_info.filename)
                         while ext and base.count('.') > 0:
@@ -422,7 +420,6 @@ try:
                                             os.path.join(basemoddic, base.split('/')[1] + ext))
                                 shutil.rmtree(os.path.join(basemoddic, base.split('/')[0]))
 
-                # os.system('copy "%s" %s' % (selected_files[0], basemoddic + os.path.basename(selected_files[0])))
                 self.refresh_data()
 
         def handleCheckboxStateChange(self, state, index):
@@ -525,7 +522,7 @@ try:
                 'label.2': 'Status',
                 'label.3': 'Operation',
                 'warn.dumplicate_mod_higher_ver': '''The same mod with a higher or same version is in active mode!
-                                Aborting'''
+Aborting'''
             }
         else:
             # Default to English if the locale is not supported
@@ -537,7 +534,7 @@ try:
                 'label.2': 'Status',
                 'label.3': 'Operation',
                 'warn.dumplicate_mod_higher_ver': '''The same mod with a higher or same version is in active mode!
-                                Aborting'''
+Aborting'''
             }
 
 
