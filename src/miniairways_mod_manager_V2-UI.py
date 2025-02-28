@@ -23,11 +23,13 @@ import time
 import datetime
 
 import loggerjava as lj
+# TODO: convert into loguru
 
 ver = '0.2.7.dev5'
 
 # BepInEx folder test
-if not os.path.exists('.\\BepInEx\\'):
+if not os.path.exists('.\\BepInEx\\') or not os.path.exists('.\\BepInEx\\plugins\\'):
+    lj.error('BepInEx folder not found', pos='init')
     app = QApplication([])
     msg_box = QMessageBox()
     msg_box.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
@@ -72,6 +74,7 @@ try:
         stat_db = []
         have_dumplicates = {}
         if not ns:
+            # TODO: bug:rm or rename folder after setup and fail to copy,search
             lj.error('plugins folder not found', pos='disc_load_thread')
             msg_box = QMessageBox()
             msg_box.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
@@ -168,6 +171,7 @@ try:
                     os.rename(changed_name, os.path.join(basemoddic, filename))
             index_now += 1
             Mainwindow.setprogressbarvalue(int(index_now / len(ns_list) * 100))
+        Mainwindow.setprogressbarvalue(100)
         last_refresh = time.time()
 
         # handle dumplicates
@@ -392,8 +396,6 @@ try:
             file_dialog = QtWidgets.QFileDialog()
             file_dialog.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
             file = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', filter="Application extension (*.dll)")
-            # print(file)
-            # return
             # Show the file dialog and get the selected file(s)
             if file[0]:
                 lj.info('adding a mod with route:%s' % file[0], pos='Ui_MainUI')
@@ -404,13 +406,7 @@ try:
 
         def addFile_zip(self):
             # Create a file dialog
-            # file_dialog = QFileDialog()
-            #
-            # # Set the file dialog to open in file selection mode
-            # file_dialog.setFileMode(QFileDialog.ExistingFile)
-            # file_dialog.setNameFilter("Zip file (*.zip)")
-            # file_dialog.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
-            # file_dialog.show()
+
             file_dialog = QtWidgets.QFileDialog()
             file_dialog.setWindowIcon(
                 QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
@@ -440,7 +436,6 @@ try:
                 disablemod(index)
 
         def setprogressbarvalue(self, progress:int):
-            # self.ui.progressBar.value(progress)
             self.ui.progressBar.setValue(progress)
 
 
@@ -559,12 +554,6 @@ Aborting'''
     if __name__ == '__main__':
         app = QApplication(sys.argv)
         translator = QTranslator(app)
-        # print(QLocale.system().Language)
-        # translator.load(r'.\Ui\Main_zh_CN.qm')
-        # # translator.load(r'.\Ui\Manager_Main.qm')
-        # print(translator.filePath())
-        # print(translator.language())
-        # print(translator.translate('Dialog','Dialog'))
         load_translator()
         app.installTranslator(translator)
         app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt6())
