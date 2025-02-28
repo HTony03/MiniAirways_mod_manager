@@ -56,6 +56,15 @@ shell = Dispatch("Shell.Application")
 # enter directory where your file is located
 ns = shell.NameSpace(os.path.abspath(basemoddic))
 
+attribute_indices = {
+    "Name": 0,
+    "File description": 33,
+    "Company": 34,
+    "File version": 166,
+    "Product name": 297,
+    "Product version": 298
+}
+
 try:
     def reload_from_disc(Mainwindow):
         global mod_database, last_refresh
@@ -74,9 +83,8 @@ try:
                 index = str(list(map(lambda x: str(x), ns_list)).index(filename))
                 if ext == '.dll':
                     filedata = {}
-                    for j in [0, 33, 34, 166, 297, 298]:
-                        filedata[ns.GetDetailsOf(j, j)] = ns.GetDetailsOf(
-                            list(ns.Items())[list(map(lambda x: str(x), ns_list)).index(filename)], j)
+                    for attr, idx in attribute_indices.items():
+                        filedata[attr] = ns.GetDetailsOf(list(ns.Items())[list(map(lambda x: str(x), ns_list)).index(filename)], idx)
                     lj.info('read filedata(%s):' % index + str(filedata), pos='disc_load_thread')
                     if filedata["File description"] not in name_db:
                         mod_database['mod' + str(len(mod_database))] = {
@@ -139,13 +147,8 @@ try:
                         lj.info('hmmmm what do you want do to XD\nskipping the file', pos='disc_load_thread')
                         continue
                     filedata = {}
-                    # for j in range(0, 321): if (ns.GetDetailsOf(list(ns.Items())[list(map(lambda x:str(x),
-                    # ns_list)).index(filename)], j) and ns.GetDetailsOf(j, j) in ['Name', 'File description',
-                    # 'Company', 'File version', 'Product name', 'Product version'] \ ): filedata[ns.GetDetailsOf(j,
-                    # j)] = ns.GetDetailsOf(list(ns.Items())[list(map(lambda x:str(x),ns_list)).index(filename)], j)
-                    for j in [0, 33, 34, 166, 297, 298]:
-                        filedata[ns.GetDetailsOf(j, j)] = ns.GetDetailsOf(
-                            list(ns.Items())[list(map(lambda x: str(x), ns_list)).index(filename)], j)
+                    for attr, idx in attribute_indices.items():
+                        filedata[attr] = ns.GetDetailsOf(list(ns.Items())[list(map(lambda x: str(x), ns_list)).index(filename)], idx)
                     lj.info('read filedata(%s):' % index + str(filedata), pos='disc_load_thread')
                     mod_database['mod' + str(len(mod_database))] = {
                         "name": filedata["File description"],
