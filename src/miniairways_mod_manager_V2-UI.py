@@ -20,6 +20,7 @@ if __name__ == '__main__':
 import os
 import platform
 import time
+import datetime
 
 import loggerjava as lj
 
@@ -30,17 +31,15 @@ if not os.path.exists('.\\BepInEx\\'):
     app = QApplication([])
     msg_box = QMessageBox()
     msg_box.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
-    msg_box.setText("""the mod manager is currently not in the Mini Airways Folder
-    check your location and open the manager!""")
+    msg_box.setText("""the mod manager is currently not in the Mini Airways Mod branch Folder
+    check your location, steam game branch settings and open the manager again!""")
     msg_box.exec()
     sys.exit()
 
 # init log
 if not os.path.exists('.\\MiniAirways_mod_manager_log\\'):
     os.mkdir('.\\MiniAirways_mod_manager_log\\')
-lj.config(name='.\\MiniAirways_mod_manager_log\\' +
-               str(time.gmtime().tm_mon) + '.' + str(time.gmtime().tm_mday) + '_' +
-               str(time.gmtime().tm_hour) + '.' + str(time.gmtime().tm_min), showinconsole=False)
+lj.config(name='.\\MiniAirways_mod_manager_log\\miniairways_mod_manager_' +datetime.datetime.now().strftime('%Y%m%d_%H.%M.%S'), showinconsole=False)
 lj.clearcurrentlog()
 lj.debug('current loggerjava ver:' + lj.ver, pos='test_loggerjava')
 
@@ -72,6 +71,14 @@ try:
         name_db = []
         stat_db = []
         have_dumplicates = {}
+        if not ns:
+            lj.error('plugins folder not found', pos='disc_load_thread')
+            msg_box = QMessageBox()
+            msg_box.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
+            msg_box.setText("""the mod manager is currently not in the Mini Airways Mod branch Folder
+            check your location, steam game branch settings and open the manager again!""")
+            msg_box.exec()
+            sys.exit()
         ns_list = ns.Items()
         index_now = 0
         for filename in list(map(lambda x: str(x), ns_list)):
@@ -390,8 +397,9 @@ try:
             # Show the file dialog and get the selected file(s)
             if file[0]:
                 lj.info('adding a mod with route:%s' % file[0], pos='Ui_MainUI')
-                os.system('copy "%s" "%s"' % (file[0], os.path.join(basemoddic,
-                                                                              os.path.basename(file[0]))))
+                #os.system('copy "%s" "%s"' % (file[0], os.path.join(basemoddic,
+                    #                                                          os.path.basename(file[0]))))
+                shutil.copy(file[0], os.path.join(basemoddic, os.path.basename(file[0])))
                 self.refresh_data()
 
         def addFile_zip(self):
