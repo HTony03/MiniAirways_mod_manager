@@ -3,14 +3,13 @@ import sys
 import zipfile
 import os
 import platform
-import time
 import datetime
-import json
 import threading
+import send2trash
 
 import qdarkstyle
 from PySide6 import QtWidgets
-from PySide6.QtCore import QTranslator, QLocale, Qt
+from PySide6.QtCore import QTranslator, QLocale, Qt, Signal
 from PySide6.QtGui import QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import QApplication, QWidget, QCheckBox, QHBoxLayout, QMessageBox, QFileDialog
 
@@ -21,14 +20,16 @@ from src.UI.Manager_mod_operation import Ui_Dialog as Dialog_mod_operation
 from loguru import logger as lj
 import traceback
 
-ver = '0.3.0'
+ver = '0.3.0.dev1'
+stop_event = threading.Event()
+ICONPATH = r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'
 
 # BepInEx folder test
 if not os.path.exists('.\\BepInEx\\') or not os.path.exists('.\\BepInEx\\plugins\\'):
     lj.error('BepInEx folder not found'+', pos='+'init')
     app = QApplication([])
     msg_box = QMessageBox()
-    msg_box.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
+    msg_box.setWindowIcon(QIcon(ICONPATH))
     msg_box.setText("""the mod manager is currently not in the Mini Airways Mod branch Folder
     check your location, steam game branch settings and open the manager again!""")
     msg_box.exec()
@@ -37,7 +38,7 @@ if not os.path.exists('.\\BepInEx\\') or not os.path.exists('.\\BepInEx\\plugins
 # init log
 if not os.path.exists('.\\MiniAirways_mod_manager_log\\'):
     os.mkdir('.\\MiniAirways_mod_manager_log\\')
-lj.add('.\\MiniAirways_mod_manager_log\\miniairways_mod_manager_' + datetime.datetime.now().strftime('%Y%m%d_%H.%M.%S') + '.log', rotation="1 MB",
+lj.add('.\\MiniAirways_mod_manager_log\\miniairways_mod_manager_' + datetime.datetime.now().strftime('%Y%m%d_%H.%M.%S') + '.log', 
        format='<green>{time:YYYY-MM-DD HH:mm:ss}</green> |'
        '<level>{level: <8}</level> |'
        '<cyan>{function}</cyan> -'
@@ -46,7 +47,7 @@ lj.add('.\\MiniAirways_mod_manager_log\\miniairways_mod_manager_' + datetime.dat
 mod_database = {}
 in_lang = {}
 basemoddic = r'.\BepInEx\plugins\\'
-last_refresh = time.time()
+last_refresh = datetime.datetime.now().timestamp()
 
 from win32com.client import Dispatch
 
@@ -72,7 +73,7 @@ def reload_from_disc(Mainwindow):
     if not ns:
         lj.error('plugins folder not found'+', pos='+'disc_load_thread')
         msg_box = QMessageBox()
-        msg_box.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
+        msg_box.setWindowIcon(QIcon(ICONPATH))
         msg_box.setText("""the mod manager is currently not in the Mini Airways Mod branch Folder
         check your location, steam game branch settings and open the manager again!""")
         msg_box.exec()
@@ -135,16 +136,19 @@ def reload_from_disc(Mainwindow):
             elif ext == '.dll.disabled':
                 changed_name = None
                 try:
-                    os.rename(os.path.join(basemoddic, filename), os.path.join(basemoddic, base + '.dll'))
-                    changed_name = os.path.join(basemoddic, base + '.dll')
-                except FileExistsError:
-                    file_name_add = list(range(1, 11)) + ['a', 'b']
-                    for addname in range(len(file_name_add)):
-                        if not os.path.exists(os.path.join(basemoddic, base + '_%s.dll' % file_name_add[addname])):
-                            os.rename(os.path.join(basemoddic, filename), os.path.join(basemoddic, base +
-                                                                                       '_%s.dll' % file_name_add[addname]))
-                            changed_name = os.path.join(basemoddic, base + '_%s.dll' % file_name_add[addname])
+                    for adds in ['']+list(range(1,10))+['a','b']:
+                        if not os.path.exists(os.path.join(basemoddic, base + f'{adds}.dll')):
+                            os.rename(os.path.join(basemoddic, filename), os.path.join(basemoddic, base + f'{adds}.dll'))
+                            changed_name = os.path.join(basemoddic, base + f'{adds}.dll')
                             break
+                    else:
+                        changed_name = None
+                except Exception as E:
+                    changed_name = None
+                    msg_box = QMessageBox()
+                    msg_box.setWindowIcon(QIcon(ICONPATH))
+                    msg_box.setText("""Failed to refresh the mod, please check whether the application is running in administrator mode and try to restart the program!""")
+               
                 if not changed_name:
                     lj.info('hmmmm what do you want do to XD\nskipping the file'+', pos='+'disc_load_thread')
                     continue
@@ -160,11 +164,16 @@ def reload_from_disc(Mainwindow):
                 }
                 name_db.append(filedata["File description"])
                 stat_db.append(0)
-                os.rename(changed_name, os.path.join(basemoddic, filename))
+                try:
+                    os.rename(changed_name, os.path.join(basemoddic, filename))
+                except Exception as E:
+                    msg_box = QMessageBox()
+                    msg_box.setWindowIcon(QIcon(ICONPATH))
+                    msg_box.setText("""Failed to refresh the mod, please check whether the application is running in administrator mode and try to restart the program!""")
+               
         index_now += 1
         Mainwindow.setprogressbarvalue(int(index_now / len(ns_list) * 100))
-    last_refresh = time.time()
-
+    last_refresh = datetime.datetime.now().timestamp()
     lj.warning('dumplicates:' + str(have_dumplicates)+', pos='+'disc_load_thread')
     for name, val in have_dumplicates.items():
         vern = val['ver']
@@ -173,32 +182,44 @@ def reload_from_disc(Mainwindow):
         max_ver_index = indexn[vern.index(max_ver)]
         indexn.remove(max_ver_index)
         vern.remove(max_ver)
-        for indexs in indexn:
-            os.rename(os.path.join(basemoddic, mod_database['mod' + str(indexs)]['file_name']),
-                      os.path.join(basemoddic, mod_database['mod' + str(indexs)]['file_name'] + '.disabled'))
-            mod_database['mod' + str(indexs)]['active'] = "False"
-
+        try:
+            for indexs in indexn:
+                os.rename(os.path.join(basemoddic, mod_database['mod' + str(indexs)]['file_name']),
+                        os.path.join(basemoddic, mod_database['mod' + str(indexs)]['file_name'] + '.disabled'))
+                mod_database['mod' + str(indexs)]['active'] = "False"
+        except Exception as E:
+            msg_box = QMessageBox()
+            msg_box.setWindowIcon(QIcon(ICONPATH))
+            msg_box.setText("""Failed to refresh the mod, please check whether the application is running in administrator mode and try to restart the program!""")
+               
     lj.info("loaded mods from disc!"+', pos='+'disc_load_thread')
 
 def delmod(index):
     global mod_database
+    lj.info('deling mod with index %s' % index)
     filedir = mod_database['mod' + str(index)]['file_name']
     dll_file_path = os.path.join(basemoddic, filedir)
-    if os.path.exists(dll_file_path):
-        os.remove(dll_file_path)
-        mod_database.pop('mod' + str(index))
-        lj.info(f"Mod file {dll_file_path} has been deleted.")
-    elif os.path.exists(dll_file_path + ".disabled"):
-        os.remove(dll_file_path + ".disabled")
-        mod_database.pop('mod' + str(index))
-        lj.info(f"Mod file {dll_file_path}.disabled has been deleted.")
-    else:
-        lj.info(f"Mod file {dll_file_path} does not exist.\n" +
-                f"removing the related mod data")
-        mod_database.pop('mod' + str(index))
-    lj.info('deleting mod with index %s' % index)
-    lj.info("deleted!")
-    Mainwindow.refresh_data()
+    try:
+        if os.path.exists(dll_file_path):
+            send2trash.send2trash(dll_file_path)
+            mod_database.pop('mod' + str(index))
+            lj.info(f"Mod file {dll_file_path} has been deleted.")
+        elif os.path.exists(dll_file_path + ".disabled"):
+            send2trash.send2trash(dll_file_path + ".disabled")
+            mod_database.pop('mod' + str(index))
+            lj.info(f"Mod file {dll_file_path}.disabled has been deleted.")
+        else:
+            lj.info(f"Mod file {dll_file_path} does not exist.\n" +
+                    f"removing the related mod data")
+            mod_database.pop('mod' + str(index))
+        lj.info('deleting mod with index %s' % index)
+        lj.info("deleted!")
+        Mainwindow.refresh_data()
+    except Exception as E:
+        lj.error(traceback.format_exc())
+        msg_box = QMessageBox()
+        msg_box.setWindowIcon(QIcon(ICONPATH))
+        msg_box.setText("""Failed to move the file to the recycle bin, please check whether the application is running in administrator mode and try to restart the program!""")
 
 def enablemod(index):
     global mod_database
@@ -217,8 +238,7 @@ def enablemod(index):
         lj.warning('dumplicates!%s' % dumplicate_index)
         if mod_ver <= max(dumplicate_ver):
             msg_box = QMessageBox()
-            msg_box.setWindowIcon(
-                QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
+            msg_box.setWindowIcon(QIcon(ICONPATH))
             msg_box.setText(in_lang['warning.dumplicate_mod_higher_ver'])
             msg_box.exec()
             Mainwindow.update_ui()
@@ -243,11 +263,16 @@ def enablemod(index):
         mod_database['mod' + str(index)]['active'] = "False"
         Mainwindow.refresh_data()
         return
-    os.rename(os.path.join(basemoddic, filedir + '.disabled'), os.path.join(basemoddic, filedir))
-    mod_database['mod' + str(index)]['active'] = "True"
-    lj.info("changed mod " + mod_database['mod' + str(index)]['name'] + ' status to enabled')
-    Mainwindow.update_ui()
-
+    try:
+        os.rename(os.path.join(basemoddic, filedir + '.disabled'), os.path.join(basemoddic, filedir))
+        mod_database['mod' + str(index)]['active'] = "True"
+        lj.info("changed mod " + mod_database['mod' + str(index)]['name'] + ' status to enabled')
+        Mainwindow.update_ui()
+    except Exception as E:
+        msg_box = QMessageBox()
+        msg_box.setWindowIcon(QIcon(ICONPATH))
+        msg_box.setText("""Failed to active the mod, please check whether the application is running in administrator mode and try to restart the program!""")
+# TODO: convert into one:modestatchange(operation:'active')
 def disablemod(index):
     global mod_database
     filedir = mod_database['mod' + str(index)]['file_name']
@@ -265,11 +290,16 @@ def disablemod(index):
         mod_database['mod' + str(index)]['active'] = "False"
         Mainwindow.refresh_data()
         return
-    os.rename(os.path.join(basemoddic, filedir), os.path.join(basemoddic, filedir + '.disabled'))
-    mod_database['mod' + str(index)]['active'] = "False"
-    lj.info('disabling mod with index %s' % index)
-    lj.info("changed mod " + mod_database['mod' + str(index)]['name'] + ' status to disabled')
-    Mainwindow.update_ui()
+    try:
+        os.rename(os.path.join(basemoddic, filedir), os.path.join(basemoddic, filedir + '.disabled'))
+        mod_database['mod' + str(index)]['active'] = "False"
+        lj.info('disabling mod with index %s' % index)
+        lj.info("changed mod " + mod_database['mod' + str(index)]['name'] + ' status to disabled')
+        Mainwindow.update_ui()
+    except Exception as E:
+        msg_box = QMessageBox()
+        msg_box.setWindowIcon(QIcon(ICONPATH))
+        msg_box.setText("""Failed to disable the mod, please check whether the application is running in administrator mode and try to restart the program!""")
 
 def launchgame():
     os.popen(r'MiniAirways.exe')
@@ -277,17 +307,17 @@ def launchgame():
 def openmodfolder():
     os.system('explorer ' + os.path.abspath(basemoddic))
 
-def auto_refresh():
-    while True:
-        time.sleep(60)  # Refresh every 60 seconds
-        reload_from_disc(Mainwindow)
+
 
 # Start the auto-refresh thread
-threading.Thread(target=auto_refresh, daemon=True).start()
+
 
 class ModMannager_MainUI(QtWidgets.QMainWindow):
+    refresh_signal = Signal()
+    
     def __init__(self):
         super().__init__()
+        global refresh
         lj.info('showing MainUI'+', pos='+'Ui_MainUI')
 
         self.shortcut = QShortcut(QKeySequence("F5"), self)
@@ -295,17 +325,24 @@ class ModMannager_MainUI(QtWidgets.QMainWindow):
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        
         self.ui.action_refresh.triggered.connect(self.refresh_data)
-        self.ui.action_quit.triggered.connect(self.close)
+        self.ui.action_quit.triggered.connect(self.closeEvent)
         self.ui.action_add.triggered.connect(self.addFile)
         self.ui.action_addwithzip.triggered.connect(self.addFile_zip)
         self.ui.action_modfolder.triggered.connect(openmodfolder)
         self.ui.action_launchgame.triggered.connect(launchgame)
-        self.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
+        self.setWindowIcon(QIcon(ICONPATH))
 
         self.refresh_data()
+        refresh = threading.Thread(target=self.auto_refresh)
+        refresh.start()
+        lj.info('started thread')
 
         self.show()
+
+        # Connect the signal to the refresh_data method
+        self.refresh_signal.connect(self.refresh_data)
 
     def refresh_data(self):
         lj.info('refresh data called'+', pos='+'Ui_MainUI')
@@ -344,7 +381,7 @@ class ModMannager_MainUI(QtWidgets.QMainWindow):
 
     def addFile(self):
         file_dialog = QtWidgets.QFileDialog()
-        file_dialog.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
+        file_dialog.setWindowIcon(QIcon(ICONPATH))
         file = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', filter="Application extension (*.dll)")
         if file[0]:
             lj.info('adding a mod with route:%s' % file[0]+', pos='+'Ui_MainUI')
@@ -353,7 +390,7 @@ class ModMannager_MainUI(QtWidgets.QMainWindow):
 
     def addFile_zip(self):
         file_dialog = QtWidgets.QFileDialog()
-        file_dialog.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
+        file_dialog.setWindowIcon(QIcon(ICONPATH))
         file = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Zip file', filter="Zip file (*.zip)")
         if file[0]:
             with zipfile.ZipFile(file[0], 'r', metadata_encoding='gbk') as zip_ref:
@@ -380,6 +417,27 @@ class ModMannager_MainUI(QtWidgets.QMainWindow):
     def setprogressbarvalue(self, progress:int):
         self.ui.progressBar.setValue(progress)
 
+    def auto_refresh(self):
+        lj.info('refresh thread start')
+        global last_refresh
+        last_refresh = datetime.datetime.now().timestamp()
+        while not stop_event.is_set():
+            if datetime.datetime.now().timestamp() - last_refresh >= 60:
+                lj.info('auto refreshing...')
+                self.refresh_signal.emit()
+                last_refresh = datetime.datetime.now().timestamp()
+            stop_event.wait(1)  # Check the event every second
+        lj.info('refresh thread stop')
+
+    def closeEvent(self):
+        global stop_event
+        # Set the stop event to signal the refresh thread to stop
+        stop_event.set()
+        # Wait for the refresh thread to finish
+        refresh.join()
+        lj.info(refresh.is_alive())
+        
+        self.close()
 class OperationUi(QtWidgets.QDialog):
     def __init__(self, index):
         super().__init__()
@@ -392,13 +450,13 @@ class OperationUi(QtWidgets.QDialog):
         self.ui.pushButton_endisable.clicked.connect(
             lambda checked: self.handle_stat_change(index)
         )
-        self.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
+        self.setWindowIcon(QIcon(ICONPATH))
 
         self.show()
 
     def handle_del(self, index):
         self.close()
-        Op_ConfirmUi(index, in_lang['Operation.Confirmdel'], {'confirm': 'delmod(self.index)'})
+        Op_ConfirmUi(index, in_lang['Operation.Confirmdel'], {'confirm': f'delmod({index})'})
 
     def handle_stat_change(self, index):
         self.close()
@@ -416,7 +474,7 @@ class ConfirmUi(QtWidgets.QDialog):
         self.ui = Dialog_check_yn()
         self.ui.setupUi(self)
         self.ui.textBrowser.setText(text)
-        self.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
+        self.setWindowIcon(QIcon(ICONPATH))
         self.show()
 
     def accept(self):
@@ -427,7 +485,7 @@ class ConfirmUi(QtWidgets.QDialog):
     def reject(self):
         self.done(0)
         if 'reject' in self.operation:
-            exec(self.operation['confirm'])
+            exec(self.operation['reject'])
 
 def Op_OperationUi(index):
     Operationwindow = OperationUi(index)
@@ -439,12 +497,13 @@ def Op_ConfirmUi(index, text, operation):
 
 def load_translator():
     global translator, in_lang
-
+    lj.info(f'trans:{QLocale.system().language()}')
+    lang = QLocale.system().language()
     # Load the appropriate .qm file based on the locale
-    if QLocale.Language() == QLocale.Language.Chinese:
+    if lang == QLocale.Language.Chinese:
         translator.load(r'.\Ui\Main_zh_CN.qm')
         in_lang = {
-            'Operation.Confirmdel': '确认删除?',
+            'Operation.Confirmdel': '确认删除?文件将被移动到回收站',
             'Operation.operation': '操作',
             'label.0': 'Mod',
             'label.1': '版本',
@@ -454,9 +513,9 @@ def load_translator():
         }
     # elif QLocale.Language() == QLocale.Language.AnyLanguage:
     #     translator.load(r'.\Ui\Main_zh_CN.qm')
-    elif QLocale.Language() == QLocale.Language.English:
+    elif lang == QLocale.Language.English:
         in_lang = {
-            'Operation.Confirmdel': 'Confirm deletion?',
+            'Operation.Confirmdel': 'Confirm deletion? The file will be moved to the recycle bin',
             'Operation.operation': 'Operation',
             'label.0': 'Mod',
             'label.1': 'Version',
@@ -468,7 +527,7 @@ Aborting'''
     else:
         # Default to English if the locale is not supported
         in_lang = {
-            'Operation.Confirmdel': 'Confirm deletion?',
+            'Operation.Confirmdel': 'Confirm deletion? The file will be moved to the recycle bin',
             'Operation.operation': 'Operation',
             'label.0': 'Mod',
             'label.1': 'Version',
@@ -480,6 +539,7 @@ Aborting'''
 
 
 if __name__ == '__main__':
+
     try:
         app = QApplication(sys.argv)
         translator = QTranslator(app)
@@ -487,14 +547,33 @@ if __name__ == '__main__':
         app.installTranslator(translator)
         app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt6())
         Mainwindow = ModMannager_MainUI()
-        sys.exit(app.exec())
+        app.exec()
+        sys.exit(stop_event.set())
     except Exception as E:
-        lj.warning(f'error occurred:\n{traceback.format_exec()}')
-        lj.info('db:\n' + json.dumps(mod_database, ensure_ascii=True, indent=4, sort_keys=False)+', pos='+'exechandler')
+        stop_event.set()
+        lj.warning(f'error occurred:\n{traceback.format_exc()}')
+        lj.info(f'db:\n{mod_database}')
         lj.info('ver: %s os: %s' % (ver, platform.system())+',pos='+'exechandler')
         msg_box = QMessageBox()
-        msg_box.setWindowIcon(QIcon(r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'))
+        msg_box.setWindowIcon(QIcon(ICONPATH))
         msg_box.setText("""please upload the latest log after the whole program is exited\n(after the window is closed).
-the log is in 'MiniAirways_mod_manager_log' folder.""")
+the log file is in 'MiniAirways_mod_manager_log' folder.""")
         msg_box.exec()
         sys.exit()
+
+
+# add: search dumplicate->
+'''
+enable:
+search dumplicate -> higher -> enable/disable(old)
+                  -> lower  -> abort
+disable:
+disable
+add:
+search dumplicate -> higher -> enable/disable(old)
+                  -> lower  -> add&disable
+'''
+
+
+
+
