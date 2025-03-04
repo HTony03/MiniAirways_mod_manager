@@ -22,16 +22,17 @@ import traceback
 
 ver = '0.3.0.dev1'
 stop_event = threading.Event()
-ICONPATH = r'D:\Program Files (x86)\Steam\steamapps\common\Mini Airways\MiniAirways.ico'
+ICONPATH = r'C:\Users\Administrator\Desktop\nonebot_Htony03\MiniAirways_mod_manager\mgr.ico'
 
 # BepInEx folder test
 if not os.path.exists('.\\BepInEx\\') or not os.path.exists('.\\BepInEx\\plugins\\'):
-    lj.error('BepInEx folder not found'+', pos='+'init')
+    lj.error('BepInEx folder not found')
     app = QApplication([])
     msg_box = QMessageBox()
     msg_box.setWindowIcon(QIcon(ICONPATH))
     msg_box.setText("""the mod manager is currently not in the Mini Airways Mod branch Folder
-    check your location, steam game branch settings and open the manager again!""")
+Please check your program location, steam game branch settings
+and open the manager again!""")
     msg_box.exec()
     sys.exit()
 
@@ -71,7 +72,7 @@ def reload_from_disc(Mainwindow):
     stat_db = []
     have_dumplicates = {}
     if not ns:
-        lj.error('plugins folder not found'+', pos='+'disc_load_thread')
+        lj.error('plugins folder not found')
         msg_box = QMessageBox()
         msg_box.setWindowIcon(QIcon(ICONPATH))
         msg_box.setText("""the mod manager is currently not in the Mini Airways Mod branch Folder
@@ -91,7 +92,7 @@ def reload_from_disc(Mainwindow):
                 filedata = {}
                 for attr, idx in attribute_indices.items():
                     filedata[attr] = ns.GetDetailsOf(list(ns.Items())[list(map(lambda x: str(x), ns_list)).index(filename)], idx)
-                lj.info('read filedata(%s):' % index + str(filedata)+', pos='+'disc_load_thread')
+                lj.info('read filedata(%s):' % index + str(filedata))
                 if filedata["File description"] not in name_db:
                     mod_database['mod' + str(len(mod_database))] = {
                         "name": filedata["File description"],
@@ -117,7 +118,7 @@ def reload_from_disc(Mainwindow):
                     lj.info('handling dumplicate:' + str({
                         'index': dumplicate_index,
                         'ver': dumplicate_ver
-                    })+', pos='+'disc_load_thread')
+                    }))
                     if enablestat:
                         have_dumplicates[filedata["File description"]] = {
                             'index': dumplicate_index,
@@ -150,12 +151,12 @@ def reload_from_disc(Mainwindow):
                     msg_box.setText("""Failed to refresh the mod, please check whether the application is running in administrator mode and try to restart the program!""")
                
                 if not changed_name:
-                    lj.info('hmmmm what do you want do to XD\nskipping the file'+', pos='+'disc_load_thread')
+                    lj.info('hmmmm what do you want do to XD\nskipping the file')
                     continue
                 filedata = {}
                 for attr, idx in attribute_indices.items():
                     filedata[attr] = ns.GetDetailsOf(list(ns.Items())[list(map(lambda x: str(x), ns_list)).index(filename)], idx)
-                lj.info('read filedata(%s):' % index + str(filedata)+', pos='+'disc_load_thread')
+                lj.info('read filedata(%s):' % index + str(filedata))
                 mod_database['mod' + str(len(mod_database))] = {
                     "name": filedata["File description"],
                     "file_name": base + '.dll',
@@ -174,7 +175,8 @@ def reload_from_disc(Mainwindow):
         index_now += 1
         Mainwindow.setprogressbarvalue(int(index_now / len(ns_list) * 100))
     last_refresh = datetime.datetime.now().timestamp()
-    lj.warning('dumplicates:' + str(have_dumplicates)+', pos='+'disc_load_thread')
+    if have_dumplicates:
+        lj.warning('dumplicates:' + str(have_dumplicates))
     for name, val in have_dumplicates.items():
         vern = val['ver']
         indexn = val['index']
@@ -192,7 +194,7 @@ def reload_from_disc(Mainwindow):
             msg_box.setWindowIcon(QIcon(ICONPATH))
             msg_box.setText("""Failed to refresh the mod, please check whether the application is running in administrator mode and try to restart the program!""")
                
-    lj.info("loaded mods from disc!"+', pos='+'disc_load_thread')
+    lj.info("loaded mods from disc!")
 
 def delmod(index):
     global mod_database
@@ -318,7 +320,7 @@ class ModMannager_MainUI(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         global refresh
-        lj.info('showing MainUI'+', pos='+'Ui_MainUI')
+        lj.info('showing MainUI')
 
         self.shortcut = QShortcut(QKeySequence("F5"), self)
         self.shortcut.activated.connect(self.refresh_data)
@@ -345,12 +347,12 @@ class ModMannager_MainUI(QtWidgets.QMainWindow):
         self.refresh_signal.connect(self.refresh_data)
 
     def refresh_data(self):
-        lj.info('refresh data called'+', pos='+'Ui_MainUI')
+        lj.info('refresh data called')
         reload_from_disc(self)
         self.update_ui()
 
     def update_ui(self):
-        lj.info('refreshing ui'+', pos='+'Ui_MainUI')
+        lj.info('refreshing ui')
         self.ui.tableWidget.setRowCount(0)
         self.ui.tableWidget.setRowCount(len(mod_database))
         self.ui.tableWidget.setColumnCount(4)
@@ -384,7 +386,7 @@ class ModMannager_MainUI(QtWidgets.QMainWindow):
         file_dialog.setWindowIcon(QIcon(ICONPATH))
         file = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', filter="Application extension (*.dll)")
         if file[0]:
-            lj.info('adding a mod with route:%s' % file[0]+', pos='+'Ui_MainUI')
+            lj.info('adding a mod with route:%s' % file[0])
             shutil.copy(file[0], os.path.join(basemoddic, os.path.basename(file[0])))
             self.refresh_data()
 
@@ -441,7 +443,7 @@ class ModMannager_MainUI(QtWidgets.QMainWindow):
 class OperationUi(QtWidgets.QDialog):
     def __init__(self, index):
         super().__init__()
-        lj.info('showing OperationUi with index %s' % index+', pos='+'Ui_OperationUi')
+        lj.info('showing OperationUi with index %s' % index)
         self.ui = Dialog_mod_operation()
         self.ui.setupUi(self)
         self.ui.pushButton_del.clicked.connect(
@@ -468,7 +470,7 @@ class OperationUi(QtWidgets.QDialog):
 class ConfirmUi(QtWidgets.QDialog):
     def __init__(self, index, text, operation):
         super().__init__()
-        lj.info('showing ConfirmUi with keys: (%s,%s,%s)' % (index, text, operation)+', pos='+'Ui_ConfirmUi')
+        lj.info('showing ConfirmUi with keys: (%s,%s,%s)' % (index, text, operation))
         self.operation = operation
         self.index = index
         self.ui = Dialog_check_yn()
